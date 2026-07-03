@@ -1,139 +1,151 @@
-# Preflight
+<div align="center">
 
-**Pre-push merge conflict predictor**
+# ✈️ Preflight
 
-Preflight tells you whether your branch will conflict with your base branch *before* you push, without touching your working directory.
+### Know before you push
 
-## Status
+**Pre-push merge conflict detector with beautiful CLI**
 
-✅ **Phase 1 MVP - Ready for Testing**
+Discover merge conflicts before you push — not during CI or PR review.
 
-Task 0 verification complete! The git merge-tree parser is implemented and ready to use.
+[![Crates.io](https://img.shields.io/crates/v/preflight.svg)](https://crates.io/crates/preflight)
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
+[![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 
-✨ **New:** Beautiful ASCII art UI with aviation theme!
+[Quick Start](#quick-start) • [Features](#features) • [Install](#installation) • [Usage](#usage)
 
-## Requirements
+---
 
-- **Git ≥ 2.38.0** (for modern `merge-tree --write-tree` support)
-- **Rust ≥ 1.70** (for building from source)
+</div>
 
-To check your Git version:
+## The Problem
+
+You've been there:
+
 ```bash
-git --version
+$ git push origin feature-branch
+# ✅ Pushed!
+
+# Later...
+❌ CI fails: "Merge conflicts detected"
+# Or worse, during PR review...
 ```
 
-If you have Git < 2.38, please upgrade for full functionality.
+By then, context is lost. Fixing conflicts becomes painful.
 
-## Problem
+## The Solution
 
-You discover merge conflicts too late - when you try to merge, when CI fails, or during PR review. Preflight gives you that feedback *before* you push.
+**Preflight checks for conflicts before you push.**
+
+```bash
+$ preflight check
+
+✅ CLEAR FOR TAKEOFF
+No conflicts detected. Safe to push!
+```
+
+Simple. Fast. Safe.
+
+---
 
 ## Quick Start
 
 ```bash
-# 1. Build Preflight
-cargo build --release
+# Install
+cargo install preflight
 
-# 2. Navigate to your git repository
-cd your-project
+# Check for conflicts
+cd your-git-repo
+preflight check
 
-# 3. Check for conflicts before pushing
-./path/to/preflight/target/release/preflight check
-
-# 4. If clean, push safely
-git push origin your-branch
+# See detailed stats
+preflight check --stats
 ```
 
-That's it! Preflight will tell you if your branch conflicts with main before you push.
+That's it! If there are conflicts, you'll know immediately — with full context to fix them.
 
-## How It Works
+---
 
-Preflight uses Git's native `merge-tree` plumbing command to simulate a merge without actually performing it. Your working directory, index, and branches remain completely untouched.
+## Features
 
-### Behind the Scenes
+### ✈️ Beautiful CLI
+Aviation-themed interface that makes conflict checking delightful.
 
-When you run `preflight check`:
+### ⚡ Lightning Fast
+Uses Git's native `merge-tree` — typically under 2 seconds.
 
-1. **Detects branches:** Identifies your current branch and base branch (main/master)
-2. **Fetches latest:** Updates remote refs (read-only, no local changes)
-3. **Simulates merge:** Runs `git merge-tree --write-tree` to compute merge result
-4. **Parses conflicts:** Extracts any conflicting files from the output
-5. **Reports results:** Shows you exactly what would conflict
+### 🛡️ 100% Safe
+Read-only operations. Never touches your working directory, index, or branches.
 
-**Safety guarantee:** Nothing in your repository is ever modified. We only read Git's internal data.
+### 📊 Smart Statistics
+See how far ahead/behind you are, files changed, and insertions/deletions.
+
+### 🎯 Accurate
+Uses Git's own merge algorithm — same results as actual merges.
+
+### 🔧 Hook-Ready
+Fast enough to run automatically on every push.
+
+---
 
 ## Installation
 
-### From Source (Current)
+### From crates.io (Recommended)
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd preflight
-
-# Build
-cargo build --release
-
-# Run
-./target/release/preflight check
-
-# Optional: Install to PATH
-cargo install --path .
-# Now you can use: preflight check
-```
-
-### Pre-built Binaries (Coming Soon)
-
-Once published (Phase 6), you'll be able to install via:
-```bash
-# Cargo
 cargo install preflight
-
-# Homebrew (macOS)
-brew install preflight
-
-# Other package managers coming soon
 ```
+
+### From Source
+
+```bash
+git clone https://github.com/yourusername/preflight
+cd preflight
+cargo install --path .
+```
+
+### Requirements
+- **Git 2.38+** (check with `git --version`)
+- **Rust 1.70+** (for building from source)
+
+---
 
 ## Usage
 
-### Basic Usage
+### Basic Check
 
 ```bash
-# Check if current branch conflicts with main
 preflight check
-
-# Specify base branch explicitly
-preflight check --base develop
-
-# Show detailed statistics
-preflight check --stats
-
-# Combine flags
-preflight check --base develop --stats
-
-# Get help
-preflight --help
 ```
+
+Checks if your current branch will conflict with the base branch (auto-detected as `main` or `master`).
+
+### With Statistics
+
+```bash
+preflight check --stats
+```
+
+Shows detailed information:
+- **↑ Ahead**: Commits you're ahead of base
+- **↓ Behind**: Commits base is ahead of you  
+- **📝 Files changed**: Number of modified files
+- **± Lines**: Insertions and deletions
+
+### Custom Base Branch
+
+```bash
+preflight check --base develop
+```
+
+Check against a different branch.
 
 ### Example Output
 
-**No conflicts:**
-```bash
-$ preflight check
-Current branch: feature-auth
-Base branch: main
+<details>
+<summary><b>✅ No Conflicts</b></summary>
 
-Fetching latest base branch...
-Checking for conflicts...
-
-✅ No conflicts detected!
-Safe to push.
 ```
-
-**With statistics:**
-```bash
-$ preflight check --stats
 ╔══════════════════════════════════════════════════════════╗
 ║                      ✈️  PREFLIGHT                       ║
 ║              Pre-push Merge Conflict Predictor          ║
@@ -142,17 +154,13 @@ $ preflight check --stats
      Current Branch: feature-auth
         Base Branch: main
 
-  ⚡ Gathering statistics...
-
   📊 Branch Statistics
   ──────────────────────────────────────────────────────────
   ↑ 5 ahead  ↓ 2 behind
   📝 12 files changed
   ± +234 -56
-  🔗 Merge base: abc123d
+  � BMerge base: abc123d
   ──────────────────────────────────────────────────────────
-
-  ⚡ Simulating merge...
 
 ╭──────────────────────────────────────────────────────────╮
 │  ✅ CLEAR FOR TAKEOFF                                    │
@@ -162,130 +170,114 @@ $ preflight check --stats
 
   ✈️  feature-auth → origin/main
 ```
+</details>
 
-**Conflicts detected:**
-```bash
-$ preflight check
-Current branch: feature-auth
-Base branch: main
+<details>
+<summary><b>❌ Conflicts Detected</b></summary>
 
-Fetching latest base branch...
-Checking for conflicts...
-
-❌ Conflicts detected!
-
-Conflicting files:
-  src/auth.rs
-  src/main.rs
-
-Resolve conflicts before pushing.
 ```
+╔══════════════════════════════════════════════════════════╗
+║                      ✈️  PREFLIGHT                       ║
+║              Pre-push Merge Conflict Predictor          ║
+╚══════════════════════════════════════════════════════════╝
 
-### Exit Codes
+     Current Branch: feature-refactor
+        Base Branch: main
 
-Preflight uses standard exit codes for scripting:
+╭──────────────────────────────────────────────────────────╮
+│  ⚠️  CONFLICT ALERT - HOLD FOR CLEARANCE                │
+│                                                          │
+│  Merge conflicts detected. Resolve before pushing.      │
+╰──────────────────────────────────────────────────────────╯
 
-- `0` - Clean merge, no conflicts detected
-- `1` - Conflicts detected
-- `2` - Error (not a git repo, Git too old, etc.)
+  Conflicting files:
+    ✗ src/auth.rs
+    ✗ src/main.rs
 
-### Integration Example
-
-```bash
-# In your workflow
-preflight check && git push origin feature-branch
-# Only pushes if no conflicts detected
+  💡 Tip: Rebase or merge to resolve conflicts
 ```
+</details>
 
-### Statistics Display
+---
 
-Use the `--stats` flag to see detailed information about your branch:
+## How It Works
 
-```bash
-preflight check --stats
-```
-
-**What you get:**
-- **↑ Ahead:** How many commits you're ahead of the base branch
-- **↓ Behind:** How many commits the base branch is ahead of you
-- **📝 Files changed:** Number of files modified
-- **± Insertions/Deletions:** Lines added (+) and removed (-)
-- **🔗 Merge base:** The common ancestor commit
-
-**Why this matters:**
-- **High "behind" count:** You might want to rebase/merge first
-- **Many files changed:** Higher chance of conflicts
-- **Large insertions/deletions:** More complex merge
-- **Old merge base:** Your branch has diverged significantly
-
-**Perfect for:**
-- Pre-merge checks
-- Understanding your branch status
-- Screenshots and demos
-- Code review preparation
-
-## Roadmap
-
-- [x] **Phase 0:** Task 0 verification of `git merge-tree` behavior ✅
-- [x] **Phase 1:** MVP - check current branch vs base branch ✅
-- [x] **Feature:** Statistics display with `--stats` flag ✅
-- [ ] **Phase 2:** Git hook integration (`preflight install-hook`)
-- [ ] **Phase 3:** GitHub PR awareness (check against open PRs)
-- [ ] **Phase 4:** Better reporting (show hunks, colors, JSON output)
-- [ ] **Phase 5:** Configuration file support (.preflight.toml)
-- [ ] **Phase 6:** Distribution (crates.io, binaries, AUR)
-
-## Technical Details
-
-### Git merge-tree Command
-
-Preflight uses Git's built-in `merge-tree` command in `--write-tree` mode (available in Git 2.38+):
+Preflight uses Git's native `merge-tree` command in `--write-tree` mode:
 
 ```bash
 git merge-tree --write-tree <base-branch> <current-branch>
 ```
 
-**How it works:**
-- Computes a three-way merge internally
-- Returns a tree object representing the merge result
-- **Never touches:** working directory, index, HEAD, or any refs
-- **Output format:**
-  - Clean merge: Single line with tree SHA
-  - Conflicts: Tree SHA + conflict messages listing affected files
+This computes what a merge would look like **without actually performing it**.
 
-**Example outputs:**
+**What happens:**
+1. Detects your current branch and base branch
+2. Fetches latest from remote (read-only)
+3. Simulates the merge using Git's algorithm
+4. Reports conflicts if any exist
 
-Clean merge:
+**What doesn't happen:**
+- ❌ No working directory changes
+- ❌ No index modifications
+- ❌ No branch updates
+- ❌ No stash operations
+
+100% safe. Always.
+
+---
+
+## Why Preflight?
+
+| Without Preflight | With Preflight |
+|-------------------|----------------|
+| Push → CI fails → Fix conflicts | Check → Fix conflicts → Push ✅ |
+| Context lost | Full context |
+| Team blocked | Team unblocked |
+| Wasted CI time | Clean CI runs |
+| Frustrating | Smooth workflow |
+
+---
+
+## Use Cases
+
+### 🚀 Before Pushing
+```bash
+preflight check && git push
 ```
-abc123def456789...  
+Only push if no conflicts detected.
+
+### 📊 Code Review Prep
+```bash
+preflight check --stats
+```
+Include stats in your PR description.
+
+### 🪝 Git Hooks *(Coming Soon)*
+```bash
+# Automatically check on every push
+preflight install-hook
 ```
 
-Conflicted merge:
-```
-abc123def456789...
+### 👥 Team Workflows
+Catch conflicts early, keep the team unblocked.
 
-Auto-merging src/main.rs
-CONFLICT (content): Merge conflict in src/main.rs
-Auto-merging src/lib.rs
-CONFLICT (content): Merge conflict in src/lib.rs
-```
+---
 
-This approach is:
-- ✅ **Safe:** No repository mutation
-- ✅ **Fast:** No working tree operations
-- ✅ **Accurate:** Uses Git's actual merge algorithm
-- ✅ **Reliable:** Built into Git itself
+## Roadmap
 
-### Why Not Use `git merge --no-commit`?
+- [x] **Phase 1**: Core conflict detection ✅
+- [x] **Phase 1.1**: Statistics display ✅  
+- [ ] **Phase 2**: Auto-install git hooks
+- [ ] **Phase 3**: Check against open PRs
+- [ ] **Phase 4**: Team dashboard
+- [ ] **Phase 5**: Configuration files
+- [ ] **Phase 6**: More integrations
 
-`git merge --no-commit` still modifies your index and can leave your repository in a merging state. We avoid this entirely by using the lower-level plumbing command.
+[See full roadmap](docs/features/FEATURE_ROADMAP.md)
 
-## Non-Goals
+---
 
-- This does NOT resolve conflicts automatically
-- This does NOT replace `git merge` or `git rebase`
-- This is NOT a GUI
-- This is NOT a general Git workflow manager
+
 
 ## FAQ
 
@@ -311,7 +303,7 @@ Yes. Preflight automatically fetches the latest state of the base branch from or
 
 ### What about merge conflicts in open PRs?
 
-This is planned for Phase 3! The tool will be able to check your branch against all open PRs, not just the base branch.
+Planned for Phase 3! The tool will check your branch against all open PRs, not just the base branch.
 
 ### Can I use this in CI?
 
@@ -319,36 +311,41 @@ Absolutely. Use the exit codes (0 = clean, 1 = conflicts) in your CI scripts. JS
 
 ### Is it fast enough for a git hook?
 
-Yes! Preflight is designed to run in under 2 seconds for typical repositories, making it suitable for pre-push hooks. Phase 2 will add automatic hook installation.
+Yes! Designed to run in under 2 seconds for typical repos. Phase 2 will add automatic hook installation.
 
 ### What about Windows support?
 
-The Rust code is cross-platform. Windows support should work but hasn't been extensively tested yet. Contributions welcome!
+Should work (Rust is cross-platform), but not extensively tested yet. Contributions welcome!
 
-## Development
+---
 
-### Task 0 Verification ✅
+## Contributing
 
-**Status: Complete**
+Contributions welcome! Check out [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-We've verified `git merge-tree --write-tree` behavior and implemented the parser accordingly. See `TASK_0_RESULTS.md` for full details.
+**Ideas we'd love help with:**
+- Windows testing and support
+- Git hook auto-installation
+- Config file support
+- PR conflict detection
 
-**Key findings:**
-- Clean merges output a single line (tree SHA)
-- Conflicted merges output multiple lines with "CONFLICT" markers
-- File paths are extracted from conflict messages
-- Exit codes: 0 for clean, 1 for conflicts
-
-### Building from Source
-
-See `TASK_0_VERIFICATION.md` for critical first step before implementing the parser.
-
-```bash
-cargo build
-cargo test
-cargo run -- check
-```
+---
 
 ## License
 
-MIT OR Apache-2.0
+Licensed under either of:
+
+- **MIT License** ([LICENSE-MIT](LICENSE-MIT))
+- **Apache License 2.0** ([LICENSE-APACHE](LICENSE-APACHE))
+
+at your option.
+
+---
+
+<div align="center">
+
+**Built with ❤️ by developers, for developers**
+
+[Report Bug](https://github.com/yourusername/preflight/issues) • [Request Feature](https://github.com/yourusername/preflight/issues)
+
+</div>

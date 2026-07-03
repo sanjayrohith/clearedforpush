@@ -3,6 +3,7 @@ use clap::{Parser, Subcommand};
 
 mod git;
 mod conflict_checker;
+mod ui;
 
 #[derive(Parser)]
 #[command(name = "preflight")]

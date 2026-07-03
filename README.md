@@ -10,6 +10,8 @@ Preflight tells you whether your branch will conflict with your base branch *bef
 
 Task 0 verification complete! The git merge-tree parser is implemented and ready to use.
 
+✨ **New:** Beautiful ASCII art UI with aviation theme!
+
 ## Requirements
 
 - **Git ≥ 2.38.0** (for modern `merge-tree --write-tree` support)

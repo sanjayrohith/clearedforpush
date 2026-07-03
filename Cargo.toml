@@ -12,3 +12,4 @@ readme = "README.md"
 clap = { version = "4.5", features = ["derive"] }
 anyhow = "1.0"
 colored = "2.1"
+atty = "0.2"

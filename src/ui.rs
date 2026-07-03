@@ -105,3 +105,49 @@ pub fn print_compact_conflicts(files: &[String]) {
         println!("  {}", file);
     }
 }
+
+/// Print branch statistics
+pub fn print_stats(stats: &crate::git::BranchStats) {
+    println!();
+    println!("{}", "  📊 Branch Statistics".bold().cyan());
+    println!("  {}", "─".repeat(50).dimmed());
+    
+    // Ahead/Behind
+    if stats.ahead > 0 || stats.behind > 0 {
+        print!("  ");
+        if stats.ahead > 0 {
+            print!("{} {}", "↑".green(), format!("{} ahead", stats.ahead).green());
+        }
+        if stats.ahead > 0 && stats.behind > 0 {
+            print!("  ");
+        }
+        if stats.behind > 0 {
+            print!("{} {}", "↓".yellow(), format!("{} behind", stats.behind).yellow());
+        }
+        println!();
+    }
+
+    // Files changed
+    if stats.files_changed > 0 {
+        println!("  {} {} files changed", "📝".dimmed(), stats.files_changed.to_string().cyan());
+    }
+
+    // Insertions/Deletions
+    if stats.insertions > 0 || stats.deletions > 0 {
+        print!("  {} ", "±".dimmed());
+        if stats.insertions > 0 {
+            print!("{} ", format!("+{}", stats.insertions).green());
+        }
+        if stats.deletions > 0 {
+            print!("{}", format!("-{}", stats.deletions).red());
+        }
+        println!();
+    }
+
+    // Merge base
+    if !stats.merge_base.is_empty() {
+        println!("  {} Merge base: {}", "🔗".dimmed(), stats.merge_base.dimmed());
+    }
+
+    println!("  {}", "─".repeat(50).dimmed());
+}

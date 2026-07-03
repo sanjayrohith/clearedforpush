@@ -21,6 +21,10 @@ enum Commands {
         /// Base branch to check against (defaults to main/master)
         #[arg(short, long)]
         base: Option<String>,
+
+        /// Show detailed statistics (ahead/behind, file changes)
+        #[arg(short, long)]
+        stats: bool,
     },
 }
 
@@ -28,8 +32,8 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Check { base } => {
-            conflict_checker::check_conflicts(base)?;
+        Commands::Check { base, stats } => {
+            conflict_checker::check_conflicts(base, stats)?;
         }
     }
 

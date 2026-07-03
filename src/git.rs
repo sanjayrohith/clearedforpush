@@ -118,6 +118,17 @@ pub struct MergeResult {
     pub conflicted_files: Vec<String>,
 }
 
+/// Branch statistics
+#[derive(Debug)]
+pub struct BranchStats {
+    pub ahead: usize,
+    pub behind: usize,
+    pub files_changed: usize,
+    pub insertions: usize,
+    pub deletions: usize,
+    pub merge_base: String,
+}
+
 /// Parse merge-tree output to determine if conflicts exist
 ///
 /// Based on Task 0 verification:
@@ -170,4 +181,66 @@ fn parse_merge_tree_output(output: &str) -> Result<MergeResult> {
         has_conflicts,
         conflicted_files,
     })
+}
+
+/// Get branch statistics (ahead/behind, files changed, etc.)
+pub fn get_branch_stats(current_branch: &str, base_branch: &str) -> Result<BranchStats> {
+    // Get merge base
+    let merge_base_output = Command::new("git")
+        .args(["merge-base", current_branch, base_branch])
+        .output()
+        .context("Failed to get merge base")?;
+    
+    let merge_base = String::from_utf8(merge_base_output.stdout)
+        .context("Invalid UTF-8 in merge base")?
+        .trim()
+        .to_string();
+
+    // Get ahead/behind counts
+    let rev_list_output = Command::new("git")
+        .args(["rev-list", "--left-right", "--count", &format!("{}...{}", base_branch, current_branch)])
+        .output()
+        .context("Failed to get ahead/behind counts")?;
+    
+    let rev_list = String::from_utf8(rev_list_output.stdout)
+        .context("Invalid UTF-8 in rev-list")?;
+    
+    let parts: Vec<&str> = rev_list.trim().split_whitespace().collect();
+    let behind = parts.get(0).and_then(|s| s.parse().ok()).unwrap_or(0);
+    let ahead = parts.get(1).and_then(|s| s.parse().ok()).unwrap_or(0);
+
+    // Get diff stats
+    let diff_output = Command::new("git")
+        .args(["diff", "--shortstat", base_branch, current_branch])
+        .output()
+        .context("Failed to get diff stats")?;
+    
+    let diff_stat = String::from_utf8(diff_output.stdout)
+        .context("Invalid UTF-8 in diff stat")?;
+
+    // Parse: " 3 files changed, 42 insertions(+), 13 deletions(-)"
+    let files_changed = extract_number(&diff_stat, "file");
+    let insertions = extract_number(&diff_stat, "insertion");
+    let deletions = extract_number(&diff_stat, "deletion");
+
+    Ok(BranchStats {
+        ahead,
+        behind,
+        files_changed,
+        insertions,
+        deletions,
+        merge_base: merge_base.chars().take(7).collect(), // Short SHA
+    })
+}
+
+/// Extract number from git stat string
+fn extract_number(text: &str, keyword: &str) -> usize {
+    text.split(',')
+        .find(|part| part.contains(keyword))
+        .and_then(|part| {
+            part.split_whitespace()
+                .next()
+                .and_then(|num| num.parse().ok())
+        })
+        .unwrap_or(0)
 }

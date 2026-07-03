@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use crate::git;
 use crate::ui;
 
-pub fn check_conflicts(base_branch: Option<String>) -> Result<()> {
+pub fn check_conflicts(base_branch: Option<String>, show_stats: bool) -> Result<()> {
     // Print beautiful header
     ui::print_header();
 
@@ -35,9 +35,23 @@ pub fn check_conflicts(base_branch: Option<String>) -> Result<()> {
     git::fetch_remote_branch(&base)
         .context("Failed to fetch base branch")?;
 
+    let base_ref = format!("origin/{}", base);
+
+    // Get statistics if requested
+    if show_stats {
+        ui::print_loading("Gathering statistics");
+        match git::get_branch_stats(&current_branch, &base_ref) {
+            Ok(stats) => ui::print_stats(&stats),
+            Err(_) => {
+                // Non-fatal: continue without stats
+                println!("  {} Could not gather statistics", "⚠️".yellow());
+            }
+        }
+    }
+
     // Run merge-tree check
     ui::print_loading("Simulating merge");
-    let result = git::check_merge_tree(&current_branch, &format!("origin/{}", base))
+    let result = git::check_merge_tree(&current_branch, &base_ref)
         .context("Failed to check merge tree")?;
 
     // Report results
@@ -45,7 +59,7 @@ pub fn check_conflicts(base_branch: Option<String>) -> Result<()> {
         ui::print_conflicts(&result.conflicted_files);
         std::process::exit(1);
     } else {
-        ui::print_success(&current_branch, &format!("origin/{}", base));
+        ui::print_success(&current_branch, &base_ref);
         std::process::exit(0);
     }
 }

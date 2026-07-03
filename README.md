@@ -106,6 +106,12 @@ preflight check
 # Specify base branch explicitly
 preflight check --base develop
 
+# Show detailed statistics
+preflight check --stats
+
+# Combine flags
+preflight check --base develop --stats
+
 # Get help
 preflight --help
 ```
@@ -123,6 +129,38 @@ Checking for conflicts...
 
 ✅ No conflicts detected!
 Safe to push.
+```
+
+**With statistics:**
+```bash
+$ preflight check --stats
+╔══════════════════════════════════════════════════════════╗
+║                      ✈️  PREFLIGHT                       ║
+║              Pre-push Merge Conflict Predictor          ║
+╚══════════════════════════════════════════════════════════╝
+
+     Current Branch: feature-auth
+        Base Branch: main
+
+  ⚡ Gathering statistics...
+
+  📊 Branch Statistics
+  ──────────────────────────────────────────────────────────
+  ↑ 5 ahead  ↓ 2 behind
+  📝 12 files changed
+  ± +234 -56
+  🔗 Merge base: abc123d
+  ──────────────────────────────────────────────────────────
+
+  ⚡ Simulating merge...
+
+╭──────────────────────────────────────────────────────────╮
+│  ✅ CLEAR FOR TAKEOFF                                    │
+│                                                          │
+│  No conflicts detected. Safe to push!                   │
+╰──────────────────────────────────────────────────────────╯
+
+  ✈️  feature-auth → origin/main
 ```
 
 **Conflicts detected:**
@@ -159,10 +197,38 @@ preflight check && git push origin feature-branch
 # Only pushes if no conflicts detected
 ```
 
+### Statistics Display
+
+Use the `--stats` flag to see detailed information about your branch:
+
+```bash
+preflight check --stats
+```
+
+**What you get:**
+- **↑ Ahead:** How many commits you're ahead of the base branch
+- **↓ Behind:** How many commits the base branch is ahead of you
+- **📝 Files changed:** Number of files modified
+- **± Insertions/Deletions:** Lines added (+) and removed (-)
+- **🔗 Merge base:** The common ancestor commit
+
+**Why this matters:**
+- **High "behind" count:** You might want to rebase/merge first
+- **Many files changed:** Higher chance of conflicts
+- **Large insertions/deletions:** More complex merge
+- **Old merge base:** Your branch has diverged significantly
+
+**Perfect for:**
+- Pre-merge checks
+- Understanding your branch status
+- Screenshots and demos
+- Code review preparation
+
 ## Roadmap
 
 - [x] **Phase 0:** Task 0 verification of `git merge-tree` behavior ✅
 - [x] **Phase 1:** MVP - check current branch vs base branch ✅
+- [x] **Feature:** Statistics display with `--stats` flag ✅
 - [ ] **Phase 2:** Git hook integration (`preflight install-hook`)
 - [ ] **Phase 3:** GitHub PR awareness (check against open PRs)
 - [ ] **Phase 4:** Better reporting (show hunks, colors, JSON output)

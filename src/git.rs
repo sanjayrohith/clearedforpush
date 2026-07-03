@@ -86,34 +86,27 @@ pub fn fetch_remote_branch(branch: &str) -> Result<()> {
 
 /// Run git merge-tree to check for conflicts
 /// 
-/// NOTE: This implementation is a placeholder until Task 0 verification is complete.
-/// The exact command syntax, flags, and output parsing must be verified against
-/// the actual Git version in use.
+/// Uses modern Git merge-tree with --write-tree (requires Git >= 2.38).
+/// This computes what a merge would look like without touching the working directory.
 pub fn check_merge_tree(current_branch: &str, base_branch: &str) -> Result<MergeResult> {
-    // TODO: Verify Git version and choose appropriate merge-tree syntax
-    // Modern Git (>= 2.38): git merge-tree --write-tree <branch1> <branch2>
-    // Older Git: git merge-tree <base> <branch1> <branch2>
-    
     let output = Command::new("git")
         .args(["merge-tree", "--write-tree", base_branch, current_branch])
         .output()
         .context("Failed to execute git merge-tree")?;
 
-    // TODO: Parse actual output format after Task 0 verification
-    // This is placeholder logic
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        
-        // Check if git version is too old
-        if stderr.contains("unknown option") || stderr.contains("--write-tree") {
-            bail!("Your Git version does not support modern merge-tree. Please upgrade to Git >= 2.38");
-        }
-        
-        bail!("git merge-tree failed: {}", stderr);
-    }
-
+    let stderr = String::from_utf8_lossy(&output.stderr);
     let stdout = String::from_utf8(output.stdout)
         .context("Invalid UTF-8 in merge-tree output")?;
+    
+    // Check if git version is too old
+    if stderr.contains("unknown option") || stderr.contains("unrecognized argument") || stderr.contains("--write-tree") {
+        bail!("Your Git version does not support modern merge-tree.\nPlease upgrade to Git >= 2.38.0\n\nCurrent error: {}", stderr);
+    }
+    
+    // Check for other errors
+    if !output.status.success() && !stderr.is_empty() {
+        bail!("git merge-tree failed: {}", stderr);
+    }
 
     parse_merge_tree_output(&stdout)
 }
@@ -127,37 +120,51 @@ pub struct MergeResult {
 
 /// Parse merge-tree output to determine if conflicts exist
 ///
-/// CRITICAL: This is placeholder logic. The actual parsing must be implemented
-/// after completing Task 0 verification of git merge-tree output format.
+/// Based on Task 0 verification:
+/// - Clean merge: Single line containing tree SHA (40 hex chars)
+/// - Conflicted merge: Multiple lines with "CONFLICT" messages
+///
+/// Format for conflicts:
+///   Line 1: tree SHA
+///   Subsequent: "CONFLICT (content): Merge conflict in <filename>"
 fn parse_merge_tree_output(output: &str) -> Result<MergeResult> {
-    // TODO: Implement actual parsing based on Task 0 verification
-    //
-    // Modern git merge-tree --write-tree output (Git >= 2.38):
-    // - If clean: outputs a tree SHA (40-char hex) and exits 0
-    // - If conflicts: outputs tree SHA on first line, then conflict info
-    //
-    // Need to verify:
-    // 1. Exact format of conflict information
-    // 2. How file paths are listed
-    // 3. Whether conflict markers are included
-    // 4. Exit code behavior
-    
-    let lines: Vec<&str> = output.lines().collect();
-    
-    if lines.is_empty() {
+    if output.trim().is_empty() {
         bail!("Empty output from git merge-tree");
     }
 
-    // Placeholder heuristic (MUST BE REPLACED after Task 0)
-    let has_conflicts = lines.len() > 1 || output.contains("<<<<<<");
+    let lines: Vec<&str> = output.lines().collect();
     
-    let conflicted_files = if has_conflicts {
-        // Placeholder: extract file paths from output
-        // Real implementation depends on actual output format
-        vec!["(conflict detection not yet implemented - see TASK_0_VERIFICATION.md)".to_string()]
-    } else {
-        vec![]
-    };
+    // Clean merge: typically just the tree SHA (one line)
+    // Conflicted merge: multiple lines with conflict information
+    let has_conflicts = lines.len() > 1 && output.contains("CONFLICT");
+    
+    let mut conflicted_files = Vec::new();
+    
+    if has_conflicts {
+        // Parse conflict messages to extract filenames
+        for line in &lines[1..] {  // Skip first line (tree SHA)
+            // Look for: "CONFLICT (content): Merge conflict in <filename>"
+            if let Some(conflict_marker) = line.find("Merge conflict in ") {
+                let filename = &line[conflict_marker + 18..].trim();
+                conflicted_files.push(filename.to_string());
+            } else if let Some(conflict_marker) = line.find("CONFLICT") {
+                // Handle other conflict types: modify/delete, rename/rename, etc.
+                // Extract any filename-like pattern after "CONFLICT"
+                let rest = &line[conflict_marker..];
+                if let Some(in_pos) = rest.find(" in ") {
+                    let filename = rest[in_pos + 4..].trim();
+                    if !filename.is_empty() && !conflicted_files.contains(&filename.to_string()) {
+                        conflicted_files.push(filename.to_string());
+                    }
+                }
+            }
+        }
+        
+        // Fallback: if we detected conflicts but no files, mark it generically
+        if conflicted_files.is_empty() {
+            conflicted_files.push("(unable to parse specific files - check git output)".to_string());
+        }
+    }
 
     Ok(MergeResult {
         has_conflicts,

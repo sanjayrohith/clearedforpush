@@ -154,3 +154,106 @@ pub fn print_stats(stats: &crate::git::BranchStats) {
 
     println!("  {}", "─".repeat(50).dimmed());
 }
+
+// ─── Hook Installation Messages ───────────────────────────────────────────────
+
+/// Print hook successfully installed
+pub fn print_hook_installed(path: &str) {
+    let w: usize = 54;
+    println!("{}", format!("╭{}╮", "─".repeat(w)).green());
+    println!("{}", format!("│{:^w$}│", "HOOK INSTALLED", w = w).green().bold());
+    println!("{}", format!("│{:^w$}│", "", w = w).green());
+    println!("{}", format!("│{:^w$}│", "Preflight will now run on every push.", w = w).green());
+    println!("{}", format!("╰{}╯", "─".repeat(w)).green());
+    println!();
+    println!("  {} {}", "Location:".bold(), path.dimmed());
+    println!("  {} {}", "Bypass:".bold(), "git push --no-verify".dimmed());
+    println!();
+}
+
+/// Print hook chained with existing hook
+pub fn print_hook_chained() {
+    let w: usize = 54;
+    println!("{}", format!("╭{}╮", "─".repeat(w)).green());
+    println!("{}", format!("│{:^w$}│", "HOOK CHAINED", w = w).green().bold());
+    println!("{}", format!("│{:^w$}│", "", w = w).green());
+    println!("{}", format!("│{:^w$}│", "Appended to existing pre-push hook.", w = w).green());
+    println!("{}", format!("╰{}╯", "─".repeat(w)).green());
+    println!();
+    println!("  {} Your existing hook will still run.", "Note:".bold());
+    println!("  {} {}", "Bypass:".bold(), "git push --no-verify".dimmed());
+    println!();
+}
+
+/// Print hook already installed
+pub fn print_hook_already_installed() {
+    let w: usize = 44;
+    println!("{}", format!("╭{}╮", "─".repeat(w)).yellow());
+    println!("{}", format!("│{:^w$}│", "ALREADY INSTALLED", w = w).yellow().bold());
+    println!("{}", format!("│{:^w$}│", "", w = w).yellow());
+    println!("{}", format!("│{:^w$}│", "Preflight hook is already active.", w = w).yellow());
+    println!("{}", format!("╰{}╯", "─".repeat(w)).yellow());
+    println!();
+}
+
+/// Print warning: existing hook found
+pub fn print_hook_exists(path: &str) {
+    let w: usize = 54;
+    println!("{}", format!("╭{}╮", "─".repeat(w)).red());
+    println!("{}", format!("│{:^w$}│", "EXISTING HOOK DETECTED", w = w).red().bold());
+    println!("{}", format!("│{:^w$}│", "", w = w).red());
+    println!("{}", format!("│{:^w$}│", "A pre-push hook already exists.", w = w).red());
+    println!("{}", format!("╰{}╯", "─".repeat(w)).red());
+    println!();
+    println!("  {} {}", "Path:".bold(), path.dimmed());
+    println!();
+    println!("  {} Use {} to chain with the existing hook.", "Tip:".bold(), "--force".cyan());
+    println!("       This will append preflight to your existing hook.");
+    println!();
+}
+
+/// Print hook removed successfully
+pub fn print_hook_removed() {
+    let w: usize = 44;
+    println!("{}", format!("╭{}╮", "─".repeat(w)).green());
+    println!("{}", format!("│{:^w$}│", "HOOK REMOVED", w = w).green().bold());
+    println!("{}", format!("│{:^w$}│", "", w = w).green());
+    println!("{}", format!("│{:^w$}│", "Pre-push hook has been uninstalled.", w = w).green());
+    println!("{}", format!("╰{}╯", "─".repeat(w)).green());
+    println!();
+}
+
+/// Print hook section removed (other hooks remain)
+pub fn print_hook_section_removed() {
+    let w: usize = 54;
+    println!("{}", format!("╭{}╮", "─".repeat(w)).green());
+    println!("{}", format!("│{:^w$}│", "HOOK REMOVED", w = w).green().bold());
+    println!("{}", format!("│{:^w$}│", "", w = w).green());
+    println!("{}", format!("│{:^w$}│", "Preflight section removed from pre-push hook.", w = w).green());
+    println!("{}", format!("╰{}╯", "─".repeat(w)).green());
+    println!();
+    println!("  {} Other hook content was preserved.", "Note:".bold());
+    println!();
+}
+
+/// Print no hook found
+pub fn print_hook_not_found() {
+    let w: usize = 44;
+    println!("{}", format!("╭{}╮", "─".repeat(w)).yellow());
+    println!("{}", format!("│{:^w$}│", "NO HOOK FOUND", w = w).yellow().bold());
+    println!("{}", format!("│{:^w$}│", "", w = w).yellow());
+    println!("{}", format!("│{:^w$}│", "No pre-push hook exists.", w = w).yellow());
+    println!("{}", format!("╰{}╯", "─".repeat(w)).yellow());
+    println!();
+}
+
+/// Print preflight not installed in hook
+pub fn print_hook_not_installed() {
+    let w: usize = 54;
+    println!("{}", format!("╭{}╮", "─".repeat(w)).yellow());
+    println!("{}", format!("│{:^w$}│", "NOT INSTALLED", w = w).yellow().bold());
+    println!("{}", format!("│{:^w$}│", "", w = w).yellow());
+    println!("{}", format!("│{:^w$}│", "Preflight is not in the current pre-push hook.", w = w).yellow());
+    println!("{}", format!("╰{}╯", "─".repeat(w)).yellow());
+    println!();
+}

@@ -171,6 +171,37 @@ preflight check && git push
 ```
 Preflight exits `0` when clean and `1` when conflicts exist, so it composes cleanly with `&&` and CI pipelines.
 
+### Git Hook (auto-check on every push)
+
+```bash
+# Install the hook
+preflight install-hook
+
+# That's it! Now every push runs a conflict check first.
+# If conflicts exist, the push is blocked.
+
+# Bypass when needed:
+git push --no-verify
+```
+
+If you already have a pre-push hook, preflight will warn you:
+```
+EXISTING HOOK DETECTED
+A pre-push hook already exists.
+Tip: Use --force to chain with the existing hook.
+```
+
+Use `--force` to safely append preflight to your existing hook:
+```bash
+preflight install-hook --force
+```
+
+To remove the hook:
+```bash
+preflight uninstall-hook
+```
+If other hook content exists, only the preflight section is removed.
+
 ---
 
 ## 🔧 How It Works
@@ -243,7 +274,7 @@ Yes — designed to run in under 2 seconds for typical repos. Automatic hook ins
 
 - [x] **Core conflict detection**
 - [x] **Statistics display**
-- [ ] **Auto-install git hooks** — `preflight install-hook`
+- [x] **Git hook integration** — `install-hook` / `uninstall-hook`
 - [ ] **Check against open PRs** — catch conflicts with teammates' branches
 - [ ] **JSON output** — stable schema for CI
 - [ ] **Config file** — `.preflight.toml` for per-project defaults

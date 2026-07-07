@@ -275,7 +275,7 @@ Yes — designed to run in under 2 seconds for typical repos. Automatic hook ins
 - [x] **Core conflict detection**
 - [x] **Statistics display**
 - [x] **Git hook integration** — `install-hook` / `uninstall-hook`
-- [ ] **Check against open PRs** — catch conflicts with teammates' branches
+- [x] **GitHub PR awareness** — check conflicts against open PRs
 - [ ] **JSON output** — stable schema for CI
 - [ ] **Config file** — `.preflight.toml` for per-project defaults
 

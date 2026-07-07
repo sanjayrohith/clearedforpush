@@ -205,8 +205,8 @@ pub fn get_branch_stats(current_branch: &str, base_branch: &str) -> Result<Branc
     let rev_list = String::from_utf8(rev_list_output.stdout)
         .context("Invalid UTF-8 in rev-list")?;
     
-    let parts: Vec<&str> = rev_list.trim().split_whitespace().collect();
-    let behind = parts.get(0).and_then(|s| s.parse().ok()).unwrap_or(0);
+    let parts: Vec<&str> = rev_list.split_whitespace().collect();
+    let behind = parts.first().and_then(|s| s.parse().ok()).unwrap_or(0);
     let ahead = parts.get(1).and_then(|s| s.parse().ok()).unwrap_or(0);
 
     // Get diff stats

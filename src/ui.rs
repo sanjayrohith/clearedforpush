@@ -12,6 +12,7 @@ pub fn print_header() {
 }
 
 /// Print a step with checkmark
+#[allow(dead_code)]
 pub fn print_step(message: &str, done: bool) {
     if done {
         println!("  {} {}", "✓".green().bold(), message.dimmed());
@@ -50,6 +51,7 @@ pub fn print_conflicts(files: &[String]) {
 }
 
 /// Print error message
+#[allow(dead_code)]
 pub fn print_error(error: &str) {
     let w: usize = 44;
     println!();
@@ -94,14 +96,17 @@ pub fn print_already_on_base(branch: &str) {
 }
 
 /// Alternative: Compact mode (for --quiet or when piped)
+#[allow(dead_code)]
 pub fn is_tty() -> bool {
     atty::is(atty::Stream::Stdout)
 }
 
+#[allow(dead_code)]
 pub fn print_compact_success() {
     println!("{}", "✓ No conflicts".green());
 }
 
+#[allow(dead_code)]
 pub fn print_compact_conflicts(files: &[String]) {
     println!("{}", "✗ Conflicts detected:".red());
     for file in files {
@@ -256,4 +261,102 @@ pub fn print_hook_not_installed() {
     println!("{}", format!("│{:^w$}│", "Preflight is not in the current pre-push hook.", w = w).yellow());
     println!("{}", format!("╰{}╯", "─".repeat(w)).yellow());
     println!();
+}
+
+// ─── PR Awareness Messages ────────────────────────────────────────────────────
+
+/// Print PR check section header
+pub fn print_pr_check_header(count: usize) {
+    println!();
+    println!("  {}", "─".repeat(50).dimmed());
+    println!(
+        "  {} Checking {} open {} for conflicts...",
+        "🔍".dimmed(),
+        count.to_string().cyan(),
+        if count == 1 { "PR" } else { "PRs" }
+    );
+    println!("  {}", "─".repeat(50).dimmed());
+}
+
+/// Print PR check results
+pub fn print_pr_results(results: &[crate::github::PrCheckResult]) {
+    let conflicts: Vec<_> = results.iter().filter(|r| r.has_conflicts).collect();
+    let clean: Vec<_> = results.iter().filter(|r| !r.has_conflicts).collect();
+
+    println!();
+
+    // Show clean PRs
+    for result in &clean {
+        println!(
+            "  {} #{} {} {}",
+            "✓".green(),
+            result.pr.number.to_string().dimmed(),
+            result.pr.head_branch.cyan(),
+            format!("({})", result.pr.author).dimmed()
+        );
+        if !result.pr.title.is_empty() {
+            println!("      {}", result.pr.title.dimmed());
+        }
+    }
+
+    // Show conflicting PRs
+    for result in &conflicts {
+        println!(
+            "  {} #{} {} {}",
+            "✗".red(),
+            result.pr.number.to_string().bold(),
+            result.pr.head_branch.red(),
+            format!("({})", result.pr.author).dimmed()
+        );
+        if !result.pr.title.is_empty() {
+            println!("      {}", result.pr.title.dimmed());
+        }
+        for file in &result.conflicted_files {
+            println!("      {} {}", "↳".red(), file.red());
+        }
+    }
+
+    // Summary
+    println!();
+    if conflicts.is_empty() {
+        println!(
+            "  {} No conflicts with open PRs",
+            "✓".green().bold()
+        );
+    } else {
+        println!(
+            "  {} {} {} with conflicts",
+            "⚠".yellow().bold(),
+            conflicts.len(),
+            if conflicts.len() == 1 { "PR" } else { "PRs" }
+        );
+    }
+    println!();
+}
+
+/// Print warning when PR check can't run
+pub fn print_pr_warning(message: &str) {
+    println!();
+    println!(
+        "  {} {} {}",
+        "⚠".yellow(),
+        "PR check skipped:".yellow(),
+        message.dimmed()
+    );
+    println!(
+        "  {} Use {} to silence this.",
+        " ".dimmed(),
+        "--skip-prs".cyan()
+    );
+    println!();
+}
+
+/// Print when there are no open PRs
+pub fn print_no_open_prs() {
+    println!();
+    println!(
+        "  {} {}",
+        "ℹ".dimmed(),
+        "No other open PRs targeting this base.".dimmed()
+    );
 }

@@ -3,6 +3,7 @@ use clap::{Parser, Subcommand};
 
 mod conflict_checker;
 mod git;
+mod github;
 mod hooks;
 mod ui;
 
@@ -26,6 +27,10 @@ enum Commands {
         /// Show detailed statistics (ahead/behind, file changes)
         #[arg(short, long)]
         stats: bool,
+
+        /// Skip checking against open pull requests
+        #[arg(long)]
+        skip_prs: bool,
     },
 
     /// Install preflight as a pre-push git hook
@@ -43,8 +48,8 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Check { base, stats } => {
-            conflict_checker::check_conflicts(base, stats)?;
+        Commands::Check { base, stats, skip_prs } => {
+            conflict_checker::check_conflicts(base, stats, skip_prs)?;
         }
         Commands::InstallHook { force } => {
             install_hook_cmd(force)?;

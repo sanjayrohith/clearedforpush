@@ -18,3 +18,8 @@ Thumbs.db
 # Documentation
 # Internal documentation is kept locally only
 /docs/
+.kiro/steering/product.md
+.gitignore
+.kiro/steering/tech.md
+.kiro/steering/structure.md
+.kiro/settings/mcp.json

@@ -4,7 +4,7 @@ pkgver=0.1.0
 pkgrel=1
 pkgdesc="Pre-push merge conflict predictor with beautiful CLI"
 arch=('x86_64' 'aarch64')
-url="https://github.com/yourusername/clearedforpush"
+url="https://github.com/sanjayrohith/clearedforpush"
 license=('MIT' 'Apache-2.0')
 depends=('git>=2.38')
 makedepends=('cargo')

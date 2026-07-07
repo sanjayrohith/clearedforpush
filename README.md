@@ -273,7 +273,7 @@ cargo install clearedforpush
 
 **Homebrew** &nbsp;·&nbsp; _macOS / Linux_
 ```bash
-brew install yourusername/tap/clearedforpush
+brew install sanjayrohith/tap/clearedforpush
 ```
 
 **AUR** &nbsp;·&nbsp; _Arch Linux_
@@ -286,7 +286,7 @@ yay -S clearedforpush
 
 **From source**
 ```bash
-git clone https://github.com/yourusername/clearedforpush
+git clone https://github.com/sanjayrohith/clearedforpush
 cd clearedforpush
 cargo install --path .
 ```
@@ -299,7 +299,7 @@ cargo install --path .
 </tr>
 </table>
 
-**Prebuilt binaries** &mdash; grab the latest from [Releases](https://github.com/yourusername/clearedforpush/releases):
+**Prebuilt binaries** &mdash; grab the latest from [Releases](https://github.com/sanjayrohith/clearedforpush/releases):
 
 | Platform | Asset |
 |:---|:---|
@@ -310,7 +310,7 @@ cargo install --path .
 
 ```bash
 # Example: Linux
-curl -LO https://github.com/yourusername/clearedforpush/releases/latest/download/clearedforpush-v0.1.0-x86_64-unknown-linux-musl.tar.gz
+curl -LO https://github.com/sanjayrohith/clearedforpush/releases/latest/download/clearedforpush-v0.1.0-x86_64-unknown-linux-musl.tar.gz
 tar xzf clearedforpush-*.tar.gz
 sudo mv clearedforpush /usr/local/bin/
 ```
@@ -607,9 +607,9 @@ Licensed under either of **MIT** ([LICENSE-MIT](LICENSE-MIT)) or
 
 **Built with ♥ by developers, for developers**
 
-<a href="https://github.com/yourusername/clearedforpush/issues"><b>Report a Bug</b></a>
+<a href="https://github.com/sanjayrohith/clearedforpush/issues"><b>Report a Bug</b></a>
 &nbsp;·&nbsp;
-<a href="https://github.com/yourusername/clearedforpush/issues"><b>Request a Feature</b></a>
+<a href="https://github.com/sanjayrohith/clearedforpush/issues"><b>Request a Feature</b></a>
 
 <br/><br/>
 

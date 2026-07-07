@@ -3,10 +3,14 @@ name = "clearedforpush"
 version = "0.1.0"
 edition = "2021"
 authors = ["Cleared for Push Contributors"]
-description = "Pre-push merge conflict predictor"
+description = "Pre-push merge conflict predictor — catch conflicts before you push, not during CI"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/yourusername/clearedforpush"
+repository = "https://github.com/sanjayrohith/clearedforpush"
+homepage = "https://github.com/sanjayrohith/clearedforpush"
 readme = "README.md"
+keywords = ["git", "merge", "conflict", "pre-push", "cli"]
+categories = ["command-line-utilities", "development-tools"]
+exclude = ["docs/", "pkg/", "scripts/", "assets/", ".github/", ".kiro/"]
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }

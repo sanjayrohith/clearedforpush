@@ -171,7 +171,7 @@ fn init_config() -> Result<()> {
     }
 
     let template = r#"# Cleared for Push configuration
-# See: https://github.com/yourusername/clearedforpush
+# See: https://github.com/sanjayrohith/clearedforpush
 
 # Base branch to check against (auto-detected if not set)
 # base = "main"

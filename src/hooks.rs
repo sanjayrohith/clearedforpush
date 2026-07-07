@@ -7,7 +7,7 @@ const HOOK_MARKER_START: &str = "# --- clearedforpush hook start ---";
 const HOOK_MARKER_END: &str = "# --- clearedforpush hook end ---";
 
 const HOOK_SCRIPT: &str = r#"# --- clearedforpush hook start ---
-# Installed by clearedforpush (https://github.com/yourusername/clearedforpush)
+# Installed by clearedforpush (https://github.com/sanjayrohith/clearedforpush)
 # Runs conflict check before push. Use --no-verify to bypass.
 
 if command -v clearedforpush &> /dev/null; then

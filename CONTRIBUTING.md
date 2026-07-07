@@ -7,7 +7,7 @@ Thank you for your interest in contributing to Cleared for Push! 🎉
 1. **Fork the repository**
 2. **Clone your fork:**
    ```bash
-   git clone https://github.com/yourusername/clearedforpush
+   git clone https://github.com/sanjayrohith/clearedforpush
    cd clearedforpush
    ```
 3. **Build the project:**
@@ -41,7 +41,7 @@ clearedforpush/
 ## How to Contribute
 
 ### Reporting Bugs
-1. Check if the bug is already reported in [Issues](https://github.com/yourusername/clearedforpush/issues)
+1. Check if the bug is already reported in [Issues](https://github.com/sanjayrohith/clearedforpush/issues)
 2. If not, create a new issue with:
    - Clear description
    - Steps to reproduce
@@ -49,7 +49,7 @@ clearedforpush/
    - Your environment (OS, Git version, Rust version)
 
 ### Suggesting Features
-1. Check [Feature Ideas](https://github.com/yourusername/clearedforpush/discussions) first
+1. Check [Feature Ideas](https://github.com/sanjayrohith/clearedforpush/discussions) first
 2. Open a new discussion to get feedback before implementing
 3. Explain the use case and benefit
 
@@ -116,7 +116,7 @@ cargo test -- --nocapture
 
 ## Questions?
 
-- Open a [Discussion](https://github.com/yourusername/clearedforpush/discussions)
+- Open a [Discussion](https://github.com/sanjayrohith/clearedforpush/discussions)
 - Ask in issues
 - Be patient and kind!
 

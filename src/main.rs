@@ -5,6 +5,7 @@ mod conflict_checker;
 mod git;
 mod github;
 mod hooks;
+mod output;
 mod ui;
 
 #[derive(Parser)]
@@ -31,6 +32,14 @@ enum Commands {
         /// Skip checking against open pull requests
         #[arg(long)]
         skip_prs: bool,
+
+        /// Show conflicting diff hunks
+        #[arg(long)]
+        diff: bool,
+
+        /// Output format: text, json, compact
+        #[arg(long, default_value = "text")]
+        format: String,
     },
 
     /// Install preflight as a pre-push git hook
@@ -48,8 +57,13 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Check { base, stats, skip_prs } => {
-            conflict_checker::check_conflicts(base, stats, skip_prs)?;
+        Commands::Check { base, stats, skip_prs, diff, format } => {
+            let fmt = output::OutputFormat::from_str(&format)
+                .unwrap_or_else(|| {
+                    eprintln!("Unknown format '{}'. Using 'text'. Options: text, json, compact", format);
+                    output::OutputFormat::Text
+                });
+            conflict_checker::check_conflicts(base, stats, skip_prs, diff, fmt)?;
         }
         Commands::InstallHook { force } => {
             install_hook_cmd(force)?;

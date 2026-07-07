@@ -119,6 +119,8 @@ That's the whole thing. If there's a conflict, you'll know instantly — with th
 - **📊 Smart stats** — see how far ahead/behind you are, files changed, and line diffs
 - **🎯 Accurate** — uses Git's own merge algorithm, so results match a real merge
 - **🪝 Hook-ready** — fast enough to run automatically on every push
+- **🔍 PR awareness** — detects conflicts with open pull requests targeting the same base
+- **📋 Multiple output formats** — text (default), JSON (CI-friendly), and compact (scripting)
 
 ---
 
@@ -164,6 +166,37 @@ Adds a detailed breakdown:
 ```bash
 preflight check --base develop
 ```
+
+### Show conflict diffs
+```bash
+preflight check --diff
+```
+When conflicts exist, shows the actual diff hunks with syntax highlighting (additions in green, deletions in red).
+
+### JSON output (for CI/scripting)
+```bash
+preflight check --format json --skip-prs
+```
+Outputs a stable JSON schema:
+```json
+{
+  "version": 1,
+  "current_branch": "feature-x",
+  "base_branch": "main",
+  "has_conflicts": false,
+  "exit_code": 0,
+  "conflicted_files": [],
+  "conflict_diffs": [],
+  "stats": { "ahead": 3, "behind": 1, "files_changed": 5, ... },
+  "pr_conflicts": []
+}
+```
+
+### Compact output
+```bash
+preflight check --format compact
+```
+Single-line output: `OK: no conflicts` or `CONFLICT: file1.rs, file2.rs`
 
 ### In a script or CI
 ```bash
@@ -259,7 +292,7 @@ Yes. Preflight fetches the latest state of the base branch from origin before ch
 <details>
 <summary><b>Can I use it in CI?</b></summary>
 <br/>
-Absolutely. Use the exit codes (0 = clean, 1 = conflicts) in your scripts. JSON output is planned for a future release.
+Absolutely. Use <code>--format json</code> for structured output with a stable schema, or use exit codes (0 = clean, 1 = conflicts) in shell scripts.
 </details>
 
 <details>
@@ -276,8 +309,9 @@ Yes — designed to run in under 2 seconds for typical repos. Automatic hook ins
 - [x] **Statistics display**
 - [x] **Git hook integration** — `install-hook` / `uninstall-hook`
 - [x] **GitHub PR awareness** — check conflicts against open PRs
-- [ ] **JSON output** — stable schema for CI
+- [x] **Better reporting** — diff hunks, JSON output, compact mode
 - [ ] **Config file** — `.preflight.toml` for per-project defaults
+- [ ] **CI integrations** — GitHub Actions, GitLab CI templates
 
 ---
 

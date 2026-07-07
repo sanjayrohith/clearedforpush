@@ -112,14 +112,23 @@ pub fn check_merge_tree(current_branch: &str, base_branch: &str) -> Result<Merge
 }
 
 /// Result of a merge-tree check
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MergeResult {
     pub has_conflicts: bool,
     pub conflicted_files: Vec<String>,
+    #[allow(dead_code)]
+    pub conflict_diffs: Vec<ConflictDiff>,
+}
+
+/// A conflict diff for a single file
+#[derive(Debug, Clone)]
+pub struct ConflictDiff {
+    pub filename: String,
+    pub hunks: Vec<String>,
 }
 
 /// Branch statistics
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BranchStats {
     pub ahead: usize,
     pub behind: usize,
@@ -127,6 +136,7 @@ pub struct BranchStats {
     pub insertions: usize,
     pub deletions: usize,
     pub merge_base: String,
+    pub merge_base_subject: String,
 }
 
 /// Parse merge-tree output to determine if conflicts exist
@@ -180,7 +190,77 @@ fn parse_merge_tree_output(output: &str) -> Result<MergeResult> {
     Ok(MergeResult {
         has_conflicts,
         conflicted_files,
+        conflict_diffs: Vec::new(), // populated separately by get_conflict_diffs()
     })
+}
+
+/// Get the actual conflict diff hunks for each conflicted file
+/// Uses `git diff` against the merge-tree result to show conflict markers
+pub fn get_conflict_diffs(current_branch: &str, base_branch: &str, files: &[String]) -> Vec<ConflictDiff> {
+    let mut diffs = Vec::new();
+
+    for file in files {
+        // Get the diff for this specific file between the two branches
+        let output = Command::new("git")
+            .args(["diff", base_branch, current_branch, "--", file])
+            .output();
+
+        match output {
+            Ok(out) if out.status.success() => {
+                let diff_text = String::from_utf8_lossy(&out.stdout).to_string();
+                let hunks = extract_hunks(&diff_text);
+                if !hunks.is_empty() {
+                    diffs.push(ConflictDiff {
+                        filename: file.clone(),
+                        hunks,
+                    });
+                }
+            }
+            _ => {
+                // Can't get diff for this file — skip silently
+            }
+        }
+    }
+
+    diffs
+}
+
+/// Extract hunk sections from a unified diff
+fn extract_hunks(diff: &str) -> Vec<String> {
+    let mut hunks = Vec::new();
+    let mut current_hunk = String::new();
+    let mut in_hunk = false;
+
+    for line in diff.lines() {
+        if line.starts_with("@@") {
+            // Start of a new hunk
+            if in_hunk && !current_hunk.is_empty() {
+                hunks.push(current_hunk.clone());
+            }
+            current_hunk = String::new();
+            current_hunk.push_str(line);
+            current_hunk.push('\n');
+            in_hunk = true;
+        } else if in_hunk {
+            // Skip binary file notice lines and git diff headers inside hunks
+            if line.starts_with("diff --git") || line.starts_with("index ") {
+                if !current_hunk.is_empty() {
+                    hunks.push(current_hunk.clone());
+                }
+                current_hunk = String::new();
+                in_hunk = false;
+            } else {
+                current_hunk.push_str(line);
+                current_hunk.push('\n');
+            }
+        }
+    }
+
+    if in_hunk && !current_hunk.is_empty() {
+        hunks.push(current_hunk);
+    }
+
+    hunks
 }
 
 /// Get branch statistics (ahead/behind, files changed, etc.)
@@ -190,21 +270,32 @@ pub fn get_branch_stats(current_branch: &str, base_branch: &str) -> Result<Branc
         .args(["merge-base", current_branch, base_branch])
         .output()
         .context("Failed to get merge base")?;
-    
+
     let merge_base = String::from_utf8(merge_base_output.stdout)
         .context("Invalid UTF-8 in merge base")?
         .trim()
         .to_string();
+
+    // Get merge base commit subject
+    let subject_output = Command::new("git")
+        .args(["log", "-1", "--format=%s", &merge_base])
+        .output();
+
+    let merge_base_subject = subject_output
+        .ok()
+        .and_then(|o| String::from_utf8(o.stdout).ok())
+        .map(|s| s.trim().to_string())
+        .unwrap_or_default();
 
     // Get ahead/behind counts
     let rev_list_output = Command::new("git")
         .args(["rev-list", "--left-right", "--count", &format!("{}...{}", base_branch, current_branch)])
         .output()
         .context("Failed to get ahead/behind counts")?;
-    
+
     let rev_list = String::from_utf8(rev_list_output.stdout)
         .context("Invalid UTF-8 in rev-list")?;
-    
+
     let parts: Vec<&str> = rev_list.split_whitespace().collect();
     let behind = parts.first().and_then(|s| s.parse().ok()).unwrap_or(0);
     let ahead = parts.get(1).and_then(|s| s.parse().ok()).unwrap_or(0);
@@ -214,7 +305,7 @@ pub fn get_branch_stats(current_branch: &str, base_branch: &str) -> Result<Branc
         .args(["diff", "--shortstat", base_branch, current_branch])
         .output()
         .context("Failed to get diff stats")?;
-    
+
     let diff_stat = String::from_utf8(diff_output.stdout)
         .context("Invalid UTF-8 in diff stat")?;
 
@@ -229,7 +320,8 @@ pub fn get_branch_stats(current_branch: &str, base_branch: &str) -> Result<Branc
         files_changed,
         insertions,
         deletions,
-        merge_base: merge_base.chars().take(7).collect(), // Short SHA
+        merge_base: merge_base.chars().take(7).collect(),
+        merge_base_subject,
     })
 }
 

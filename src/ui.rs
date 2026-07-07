@@ -50,6 +50,34 @@ pub fn print_conflicts(files: &[String]) {
     println!("{}", "  Tip: Rebase or merge to resolve conflicts".dimmed());
 }
 
+/// Print conflict diff hunks with syntax coloring
+pub fn print_conflict_diffs(diffs: &[crate::git::ConflictDiff]) {
+    println!();
+    println!("  {}", "─".repeat(50).dimmed());
+    println!("{}", "  Conflict Details:".yellow().bold());
+    println!();
+
+    for diff in diffs {
+        println!("  {} {}", "▸".yellow(), diff.filename.yellow().bold());
+
+        for hunk in &diff.hunks {
+            for line in hunk.lines() {
+                if line.starts_with("@@") {
+                    println!("    {}", line.cyan());
+                } else if line.starts_with('+') {
+                    println!("    {}", line.green());
+                } else if line.starts_with('-') {
+                    println!("    {}", line.red());
+                } else {
+                    println!("    {}", line.dimmed());
+                }
+            }
+        }
+        println!();
+    }
+    println!("  {}", "─".repeat(50).dimmed());
+}
+
 /// Print error message
 #[allow(dead_code)]
 pub fn print_error(error: &str) {
@@ -154,7 +182,11 @@ pub fn print_stats(stats: &crate::git::BranchStats) {
 
     // Merge base
     if !stats.merge_base.is_empty() {
-        println!("  🔗 Merge base: {}", stats.merge_base.dimmed());
+        if stats.merge_base_subject.is_empty() {
+            println!("  🔗 Merge base: {}", stats.merge_base.dimmed());
+        } else {
+            println!("  🔗 Merge base: {} {}", stats.merge_base.dimmed(), stats.merge_base_subject.dimmed());
+        }
     }
 
     println!("  {}", "─".repeat(50).dimmed());

@@ -41,13 +41,32 @@ impl CheckOutput {
         json.push_str("  \"version\": 1,\n");
 
         // Branches
-        json.push_str(&format!("  \"current_branch\": \"{}\",\n", escape_json(&self.current_branch)));
-        json.push_str(&format!("  \"base_branch\": \"{}\",\n", escape_json(&self.base_branch)));
-        json.push_str(&format!("  \"base_ref\": \"{}\",\n", escape_json(&self.base_ref)));
+        json.push_str(&format!(
+            "  \"current_branch\": \"{}\",\n",
+            escape_json(&self.current_branch)
+        ));
+        json.push_str(&format!(
+            "  \"base_branch\": \"{}\",\n",
+            escape_json(&self.base_branch)
+        ));
+        json.push_str(&format!(
+            "  \"base_ref\": \"{}\",\n",
+            escape_json(&self.base_ref)
+        ));
 
         // Result
-        json.push_str(&format!("  \"has_conflicts\": {},\n", self.merge_result.has_conflicts));
-        json.push_str(&format!("  \"exit_code\": {},\n", if self.merge_result.has_conflicts { 1 } else { 0 }));
+        json.push_str(&format!(
+            "  \"has_conflicts\": {},\n",
+            self.merge_result.has_conflicts
+        ));
+        json.push_str(&format!(
+            "  \"exit_code\": {},\n",
+            if self.merge_result.has_conflicts {
+                1
+            } else {
+                0
+            }
+        ));
 
         // Conflicted files
         json.push_str("  \"conflicted_files\": [");
@@ -73,7 +92,10 @@ impl CheckOutput {
             json.push('\n');
             for (i, diff) in self.conflict_diffs.iter().enumerate() {
                 json.push_str("    {\n");
-                json.push_str(&format!("      \"file\": \"{}\",\n", escape_json(&diff.filename)));
+                json.push_str(&format!(
+                    "      \"file\": \"{}\",\n",
+                    escape_json(&diff.filename)
+                ));
                 json.push_str("      \"hunks\": [\n");
                 for (j, hunk) in diff.hunks.iter().enumerate() {
                     json.push_str(&format!("        \"{}\"", escape_json(hunk)));
@@ -98,11 +120,20 @@ impl CheckOutput {
             json.push_str("{\n");
             json.push_str(&format!("    \"ahead\": {},\n", stats.ahead));
             json.push_str(&format!("    \"behind\": {},\n", stats.behind));
-            json.push_str(&format!("    \"files_changed\": {},\n", stats.files_changed));
+            json.push_str(&format!(
+                "    \"files_changed\": {},\n",
+                stats.files_changed
+            ));
             json.push_str(&format!("    \"insertions\": {},\n", stats.insertions));
             json.push_str(&format!("    \"deletions\": {},\n", stats.deletions));
-            json.push_str(&format!("    \"merge_base\": \"{}\",\n", escape_json(&stats.merge_base)));
-            json.push_str(&format!("    \"merge_base_subject\": \"{}\"\n", escape_json(&stats.merge_base_subject)));
+            json.push_str(&format!(
+                "    \"merge_base\": \"{}\",\n",
+                escape_json(&stats.merge_base)
+            ));
+            json.push_str(&format!(
+                "    \"merge_base_subject\": \"{}\"\n",
+                escape_json(&stats.merge_base_subject)
+            ));
             json.push_str("  },\n");
         } else {
             json.push_str("null,\n");
@@ -117,9 +148,18 @@ impl CheckOutput {
             for (i, pr) in self.pr_results.iter().enumerate() {
                 json.push_str("    {\n");
                 json.push_str(&format!("      \"number\": {},\n", pr.pr.number));
-                json.push_str(&format!("      \"title\": \"{}\",\n", escape_json(&pr.pr.title)));
-                json.push_str(&format!("      \"branch\": \"{}\",\n", escape_json(&pr.pr.head_branch)));
-                json.push_str(&format!("      \"author\": \"{}\",\n", escape_json(&pr.pr.author)));
+                json.push_str(&format!(
+                    "      \"title\": \"{}\",\n",
+                    escape_json(&pr.pr.title)
+                ));
+                json.push_str(&format!(
+                    "      \"branch\": \"{}\",\n",
+                    escape_json(&pr.pr.head_branch)
+                ));
+                json.push_str(&format!(
+                    "      \"author\": \"{}\",\n",
+                    escape_json(&pr.pr.author)
+                ));
                 json.push_str(&format!("      \"has_conflicts\": {},\n", pr.has_conflicts));
                 json.push_str("      \"conflicted_files\": [");
                 if pr.conflicted_files.is_empty() {

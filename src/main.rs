@@ -61,7 +61,13 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Check { base, stats, skip_prs, diff, format } => {
+        Commands::Check {
+            base,
+            stats,
+            skip_prs,
+            diff,
+            format,
+        } => {
             // Load config file
             let cfg = config::Config::load();
 
@@ -76,11 +82,13 @@ fn main() -> Result<()> {
                 .or(cfg.format.clone())
                 .unwrap_or_else(|| "text".to_string());
 
-            let fmt = output::OutputFormat::from_str(&format_str)
-                .unwrap_or_else(|| {
-                    eprintln!("Unknown format '{}'. Using 'text'. Options: text, json, compact", format_str);
-                    output::OutputFormat::Text
-                });
+            let fmt = output::OutputFormat::from_str(&format_str).unwrap_or_else(|| {
+                eprintln!(
+                    "Unknown format '{}'. Using 'text'. Options: text, json, compact",
+                    format_str
+                );
+                output::OutputFormat::Text
+            });
 
             conflict_checker::check_conflicts(
                 effective_base,
@@ -191,7 +199,10 @@ fn init_config() -> Result<()> {
 
     use colored::Colorize;
     println!("  {} Created {}", "✓".green(), config_path.cyan());
-    println!("  {} Edit the file to configure clearedforpush for this repo.", "→".dimmed());
+    println!(
+        "  {} Edit the file to configure clearedforpush for this repo.",
+        "→".dimmed()
+    );
     println!();
 
     Ok(())

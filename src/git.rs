@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, bail};
+use anyhow::{bail, Context, Result};
 use std::process::Command;
 
 /// Get the current branch name
@@ -49,7 +49,7 @@ fn get_remote_default_branch() -> Result<String> {
     }
 
     let full_ref = String::from_utf8(output.stdout)?.trim().to_string();
-    
+
     // Extract branch name from refs/remotes/origin/main
     let branch = full_ref
         .strip_prefix("refs/remotes/origin/")
@@ -85,7 +85,7 @@ pub fn fetch_remote_branch(branch: &str) -> Result<()> {
 }
 
 /// Run git merge-tree to check for conflicts
-/// 
+///
 /// Uses modern Git merge-tree with --write-tree (requires Git >= 2.38).
 /// This computes what a merge would look like without touching the working directory.
 pub fn check_merge_tree(current_branch: &str, base_branch: &str) -> Result<MergeResult> {
@@ -95,14 +95,16 @@ pub fn check_merge_tree(current_branch: &str, base_branch: &str) -> Result<Merge
         .context("Failed to execute git merge-tree")?;
 
     let stderr = String::from_utf8_lossy(&output.stderr);
-    let stdout = String::from_utf8(output.stdout)
-        .context("Invalid UTF-8 in merge-tree output")?;
-    
+    let stdout = String::from_utf8(output.stdout).context("Invalid UTF-8 in merge-tree output")?;
+
     // Check if git version is too old
-    if stderr.contains("unknown option") || stderr.contains("unrecognized argument") || stderr.contains("--write-tree") {
+    if stderr.contains("unknown option")
+        || stderr.contains("unrecognized argument")
+        || stderr.contains("--write-tree")
+    {
         bail!("Your Git version does not support modern merge-tree.\nPlease upgrade to Git >= 2.38.0\n\nCurrent error: {}", stderr);
     }
-    
+
     // Check for other errors
     if !output.status.success() && !stderr.is_empty() {
         bail!("git merge-tree failed: {}", stderr);
@@ -154,16 +156,17 @@ fn parse_merge_tree_output(output: &str) -> Result<MergeResult> {
     }
 
     let lines: Vec<&str> = output.lines().collect();
-    
+
     // Clean merge: typically just the tree SHA (one line)
     // Conflicted merge: multiple lines with conflict information
     let has_conflicts = lines.len() > 1 && output.contains("CONFLICT");
-    
+
     let mut conflicted_files = Vec::new();
-    
+
     if has_conflicts {
         // Parse conflict messages to extract filenames
-        for line in &lines[1..] {  // Skip first line (tree SHA)
+        for line in &lines[1..] {
+            // Skip first line (tree SHA)
             // Look for: "CONFLICT (content): Merge conflict in <filename>"
             if let Some(conflict_marker) = line.find("Merge conflict in ") {
                 let filename = &line[conflict_marker + 18..].trim();
@@ -180,10 +183,11 @@ fn parse_merge_tree_output(output: &str) -> Result<MergeResult> {
                 }
             }
         }
-        
+
         // Fallback: if we detected conflicts but no files, mark it generically
         if conflicted_files.is_empty() {
-            conflicted_files.push("(unable to parse specific files - check git output)".to_string());
+            conflicted_files
+                .push("(unable to parse specific files - check git output)".to_string());
         }
     }
 
@@ -196,7 +200,11 @@ fn parse_merge_tree_output(output: &str) -> Result<MergeResult> {
 
 /// Get the actual conflict diff hunks for each conflicted file
 /// Uses `git diff` against the merge-tree result to show conflict markers
-pub fn get_conflict_diffs(current_branch: &str, base_branch: &str, files: &[String]) -> Vec<ConflictDiff> {
+pub fn get_conflict_diffs(
+    current_branch: &str,
+    base_branch: &str,
+    files: &[String],
+) -> Vec<ConflictDiff> {
     let mut diffs = Vec::new();
 
     for file in files {
@@ -289,12 +297,17 @@ pub fn get_branch_stats(current_branch: &str, base_branch: &str) -> Result<Branc
 
     // Get ahead/behind counts
     let rev_list_output = Command::new("git")
-        .args(["rev-list", "--left-right", "--count", &format!("{}...{}", base_branch, current_branch)])
+        .args([
+            "rev-list",
+            "--left-right",
+            "--count",
+            &format!("{}...{}", base_branch, current_branch),
+        ])
         .output()
         .context("Failed to get ahead/behind counts")?;
 
-    let rev_list = String::from_utf8(rev_list_output.stdout)
-        .context("Invalid UTF-8 in rev-list")?;
+    let rev_list =
+        String::from_utf8(rev_list_output.stdout).context("Invalid UTF-8 in rev-list")?;
 
     let parts: Vec<&str> = rev_list.split_whitespace().collect();
     let behind = parts.first().and_then(|s| s.parse().ok()).unwrap_or(0);
@@ -306,8 +319,7 @@ pub fn get_branch_stats(current_branch: &str, base_branch: &str) -> Result<Branc
         .output()
         .context("Failed to get diff stats")?;
 
-    let diff_stat = String::from_utf8(diff_output.stdout)
-        .context("Invalid UTF-8 in diff stat")?;
+    let diff_stat = String::from_utf8(diff_output.stdout).context("Invalid UTF-8 in diff stat")?;
 
     // Parse: " 3 files changed, 42 insertions(+), 13 deletions(-)"
     let files_changed = extract_number(&diff_stat, "file");

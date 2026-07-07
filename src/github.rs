@@ -72,7 +72,11 @@ fn parse_repo_slug(url: &str) -> Result<String> {
             .map(|s| s.to_string())
     } else if url.contains("github.com") {
         // https://github.com/owner/repo.git
-        let parts: Vec<&str> = url.trim_end_matches(".git").trim_end_matches('/').split('/').collect();
+        let parts: Vec<&str> = url
+            .trim_end_matches(".git")
+            .trim_end_matches('/')
+            .split('/')
+            .collect();
         if parts.len() >= 2 {
             let repo = parts[parts.len() - 1];
             let owner = parts[parts.len() - 2];
@@ -91,11 +95,16 @@ fn parse_repo_slug(url: &str) -> Result<String> {
 pub fn list_prs_gh_cli(base_branch: &str) -> Result<Vec<PullRequest>> {
     let output = Command::new("gh")
         .args([
-            "pr", "list",
-            "--base", base_branch,
-            "--state", "open",
-            "--json", "number,title,headRefName,author",
-            "--limit", "50",
+            "pr",
+            "list",
+            "--base",
+            base_branch,
+            "--state",
+            "open",
+            "--json",
+            "number,title,headRefName,author",
+            "--limit",
+            "50",
         ])
         .output()
         .context("Failed to run gh pr list")?;
@@ -111,8 +120,7 @@ pub fn list_prs_gh_cli(base_branch: &str) -> Result<Vec<PullRequest>> {
         bail!("gh pr list failed: {}", stderr);
     }
 
-    let stdout = String::from_utf8(output.stdout)
-        .context("Invalid UTF-8 in gh output")?;
+    let stdout = String::from_utf8(output.stdout).context("Invalid UTF-8 in gh output")?;
 
     parse_gh_json(&stdout)
 }
@@ -127,9 +135,12 @@ pub fn list_prs_api(base_branch: &str, token: &str, repo_slug: &str) -> Result<V
     let output = Command::new("curl")
         .args([
             "-s",
-            "-H", &format!("Authorization: Bearer {}", token),
-            "-H", "Accept: application/vnd.github+json",
-            "-H", "X-GitHub-Api-Version: 2022-11-28",
+            "-H",
+            &format!("Authorization: Bearer {}", token),
+            "-H",
+            "Accept: application/vnd.github+json",
+            "-H",
+            "X-GitHub-Api-Version: 2022-11-28",
             &url,
         ])
         .output()
@@ -139,14 +150,15 @@ pub fn list_prs_api(base_branch: &str, token: &str, repo_slug: &str) -> Result<V
         bail!("curl request failed");
     }
 
-    let body = String::from_utf8(output.stdout)
-        .context("Invalid UTF-8 in API response")?;
+    let body = String::from_utf8(output.stdout).context("Invalid UTF-8 in API response")?;
 
     // Check for API errors
     if body.contains("\"message\"") && body.contains("rate limit") {
         bail!("GitHub API rate limit reached. Try again later.");
     }
-    if body.contains("\"message\"") && (body.contains("Bad credentials") || body.contains("Unauthorized")) {
+    if body.contains("\"message\"")
+        && (body.contains("Bad credentials") || body.contains("Unauthorized"))
+    {
         bail!("GitHub API authentication failed. Check your GITHUB_TOKEN.");
     }
     if body.contains("\"message\"") && body.contains("Not Found") {
@@ -318,7 +330,10 @@ fn extract_json_number(json: &str, key: &str) -> Option<u64> {
     let colon_pos = after_key.find(':')?;
     let after_colon = after_key[colon_pos + 1..].trim_start();
 
-    let num_str: String = after_colon.chars().take_while(|c| c.is_ascii_digit()).collect();
+    let num_str: String = after_colon
+        .chars()
+        .take_while(|c| c.is_ascii_digit())
+        .collect();
     num_str.parse().ok()
 }
 
@@ -395,7 +410,8 @@ mod tests {
 
     #[test]
     fn test_parse_api_json_single() {
-        let json = r#"[{"number":7,"title":"Fix bug","head":{"ref":"fix-bug"},"user":{"login":"dev2"}}]"#;
+        let json =
+            r#"[{"number":7,"title":"Fix bug","head":{"ref":"fix-bug"},"user":{"login":"dev2"}}]"#;
         let prs = parse_api_json(json).unwrap();
         assert_eq!(prs.len(), 1);
         assert_eq!(prs[0].number, 7);

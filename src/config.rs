@@ -1,5 +1,5 @@
-use std::path::{Path, PathBuf};
 use std::fs;
+use std::path::{Path, PathBuf};
 
 /// Configuration loaded from `.clearedforpush.toml`
 #[derive(Debug, Clone)]
@@ -63,7 +63,8 @@ impl Config {
         if self.ignore_patterns.is_empty() {
             return files.to_vec();
         }
-        files.iter()
+        files
+            .iter()
             .filter(|f| !self.is_ignored(f))
             .cloned()
             .collect()
@@ -217,12 +218,7 @@ fn parse_string_array(line: &str) -> Option<Vec<String>> {
     let inner = &value_part[1..value_part.len() - 1];
     let items: Vec<String> = inner
         .split(',')
-        .map(|s| {
-            s.trim()
-                .trim_matches('"')
-                .trim_matches('\'')
-                .to_string()
-        })
+        .map(|s| s.trim().trim_matches('"').trim_matches('\'').to_string())
         .filter(|s| !s.is_empty())
         .collect();
 

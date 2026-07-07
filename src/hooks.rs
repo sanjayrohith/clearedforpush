@@ -52,14 +52,13 @@ pub fn install_hook(force: bool) -> Result<HookInstallResult> {
 
     // Ensure hooks directory exists
     if let Some(parent) = hook_path.parent() {
-        fs::create_dir_all(parent)
-            .context("Failed to create hooks directory")?;
+        fs::create_dir_all(parent).context("Failed to create hooks directory")?;
     }
 
     // Check if hook file already exists
     if hook_path.exists() {
-        let existing_content = fs::read_to_string(&hook_path)
-            .context("Failed to read existing hook")?;
+        let existing_content =
+            fs::read_to_string(&hook_path).context("Failed to read existing hook")?;
 
         // Already has our hook installed
         if has_clearedforpush_hook(&existing_content) {
@@ -75,16 +74,14 @@ pub fn install_hook(force: bool) -> Result<HookInstallResult> {
 
         // Force mode: chain our hook with the existing one
         let new_content = format!("{}\n\n{}", existing_content.trim_end(), HOOK_SCRIPT);
-        fs::write(&hook_path, &new_content)
-            .context("Failed to write hook file")?;
+        fs::write(&hook_path, &new_content).context("Failed to write hook file")?;
         make_executable(&hook_path)?;
         return Ok(HookInstallResult::Chained);
     }
 
     // No existing hook — create fresh
     let content = format!("#!/bin/sh\n\n{}\n", HOOK_SCRIPT);
-    fs::write(&hook_path, &content)
-        .context("Failed to write hook file")?;
+    fs::write(&hook_path, &content).context("Failed to write hook file")?;
     make_executable(&hook_path)?;
 
     Ok(HookInstallResult::Installed {
@@ -100,8 +97,7 @@ pub fn uninstall_hook() -> Result<HookUninstallResult> {
         return Ok(HookUninstallResult::NoHookFound);
     }
 
-    let content = fs::read_to_string(&hook_path)
-        .context("Failed to read hook file")?;
+    let content = fs::read_to_string(&hook_path).context("Failed to read hook file")?;
 
     if !has_clearedforpush_hook(&content) {
         return Ok(HookUninstallResult::NotInstalled);
@@ -113,14 +109,12 @@ pub fn uninstall_hook() -> Result<HookUninstallResult> {
 
     // If only the shebang (or nothing) remains, remove the file entirely
     if trimmed.is_empty() || trimmed == "#!/bin/sh" || trimmed == "#!/bin/bash" {
-        fs::remove_file(&hook_path)
-            .context("Failed to remove hook file")?;
+        fs::remove_file(&hook_path).context("Failed to remove hook file")?;
         return Ok(HookUninstallResult::Removed);
     }
 
     // Other hook content remains — write back without our section
-    fs::write(&hook_path, &cleaned)
-        .context("Failed to write hook file")?;
+    fs::write(&hook_path, &cleaned).context("Failed to write hook file")?;
 
     Ok(HookUninstallResult::SectionRemoved)
 }
@@ -154,8 +148,7 @@ fn make_executable(path: &PathBuf) -> Result<()> {
         .context("Failed to read file metadata")?
         .permissions();
     perms.set_mode(0o755);
-    fs::set_permissions(path, perms)
-        .context("Failed to set file permissions")?;
+    fs::set_permissions(path, perms).context("Failed to set file permissions")?;
     Ok(())
 }
 

@@ -1,10 +1,10 @@
-use anyhow::{Context, Result};
-use colored::Colorize;
 use crate::config::Config;
 use crate::git;
 use crate::github;
 use crate::output::{CheckOutput, OutputFormat};
 use crate::ui;
+use anyhow::{Context, Result};
+use colored::Colorize;
 
 pub fn check_conflicts(
     base_branch: Option<String>,
@@ -25,8 +25,7 @@ pub fn check_conflicts(
     if is_text {
         ui::print_loading("Detecting current branch");
     }
-    let current_branch = git::get_current_branch()
-        .context("Failed to determine current branch")?;
+    let current_branch = git::get_current_branch().context("Failed to determine current branch")?;
 
     // Determine base branch
     let base = match base_branch {
@@ -35,8 +34,7 @@ pub fn check_conflicts(
             if is_text {
                 ui::print_loading("Detecting base branch");
             }
-            git::detect_base_branch()
-                .context("Failed to detect base branch")?
+            git::detect_base_branch().context("Failed to detect base branch")?
         }
     };
 
@@ -61,8 +59,7 @@ pub fn check_conflicts(
     if is_text {
         ui::print_loading("Fetching latest from origin");
     }
-    git::fetch_remote_branch(&base)
-        .context("Failed to fetch base branch")?;
+    git::fetch_remote_branch(&base).context("Failed to fetch base branch")?;
 
     let base_ref = format!("origin/{}", base);
 
@@ -97,8 +94,8 @@ pub fn check_conflicts(
     if is_text {
         ui::print_loading("Simulating merge");
     }
-    let mut result = git::check_merge_tree(&current_branch, &base_ref)
-        .context("Failed to check merge tree")?;
+    let mut result =
+        git::check_merge_tree(&current_branch, &base_ref).context("Failed to check merge tree")?;
 
     // Apply ignore patterns from config
     if !config.ignore_patterns.is_empty() && result.has_conflicts {
@@ -188,7 +185,8 @@ fn check_pr_conflicts(current_branch: &str, base_branch: &str) {
         return;
     }
 
-    let prs: Vec<_> = prs.into_iter()
+    let prs: Vec<_> = prs
+        .into_iter()
         .filter(|pr| pr.head_branch != current_branch)
         .collect();
 
@@ -242,7 +240,8 @@ fn collect_pr_results(current_branch: &str, base_branch: &str) -> Vec<github::Pr
         Err(_) => return Vec::new(),
     };
 
-    let prs: Vec<_> = prs.into_iter()
+    let prs: Vec<_> = prs
+        .into_iter()
         .filter(|pr| pr.head_branch != current_branch)
         .collect();
 
@@ -294,8 +293,7 @@ fn fetch_open_prs(base_branch: &str) -> Result<Vec<github::PullRequest>> {
     });
 
     if let Some(token) = token {
-        let slug = github::get_repo_slug()
-            .context("Could not determine GitHub repository")?;
+        let slug = github::get_repo_slug().context("Could not determine GitHub repository")?;
         return github::list_prs_api(base_branch, &token, &slug);
     }
 

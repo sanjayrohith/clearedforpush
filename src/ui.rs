@@ -6,8 +6,19 @@ const BOX_WIDTH: usize = 54;
 pub fn print_header() {
     println!();
     println!("{}", format!("╔{}╗", "═".repeat(BOX_WIDTH)).cyan());
-    println!("{}", format!("║{:^w$}║", "CLEARED FOR PUSH", w = BOX_WIDTH).cyan());
-    println!("{}", format!("║{:^w$}║", "Pre-push Merge Conflict Predictor", w = BOX_WIDTH).cyan());
+    println!(
+        "{}",
+        format!("║{:^w$}║", "CLEARED FOR PUSH", w = BOX_WIDTH).cyan()
+    );
+    println!(
+        "{}",
+        format!(
+            "║{:^w$}║",
+            "Pre-push Merge Conflict Predictor",
+            w = BOX_WIDTH
+        )
+        .cyan()
+    );
     println!("{}", format!("╚{}╝", "═".repeat(BOX_WIDTH)).cyan());
 }
 
@@ -25,9 +36,22 @@ pub fn print_step(message: &str, done: bool) {
 pub fn print_success(current_branch: &str, base_branch: &str) {
     println!();
     println!("{}", format!("╭{}╮", "─".repeat(BOX_WIDTH)).green());
-    println!("{}", format!("│{:^w$}│", "CLEAR FOR TAKEOFF", w = BOX_WIDTH).green().bold());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "CLEAR FOR TAKEOFF", w = BOX_WIDTH)
+            .green()
+            .bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = BOX_WIDTH).green());
-    println!("{}", format!("│{:^w$}│", "No conflicts detected. Safe to push!", w = BOX_WIDTH).green());
+    println!(
+        "{}",
+        format!(
+            "│{:^w$}│",
+            "No conflicts detected. Safe to push!",
+            w = BOX_WIDTH
+        )
+        .green()
+    );
     println!("{}", format!("╰{}╯", "─".repeat(BOX_WIDTH)).green());
     println!();
     println!("  {} -> {}", current_branch.cyan(), base_branch.cyan());
@@ -37,9 +61,26 @@ pub fn print_success(current_branch: &str, base_branch: &str) {
 pub fn print_conflicts(files: &[String]) {
     println!();
     println!("{}", format!("╭{}╮", "─".repeat(BOX_WIDTH)).red());
-    println!("{}", format!("│{:^w$}│", "CONFLICT ALERT - HOLD FOR CLEARANCE", w = BOX_WIDTH).red().bold());
+    println!(
+        "{}",
+        format!(
+            "│{:^w$}│",
+            "CONFLICT ALERT - HOLD FOR CLEARANCE",
+            w = BOX_WIDTH
+        )
+        .red()
+        .bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = BOX_WIDTH).red());
-    println!("{}", format!("│{:^w$}│", "Merge conflicts detected. Resolve before pushing.", w = BOX_WIDTH).red());
+    println!(
+        "{}",
+        format!(
+            "│{:^w$}│",
+            "Merge conflicts detected. Resolve before pushing.",
+            w = BOX_WIDTH
+        )
+        .red()
+    );
     println!("{}", format!("╰{}╯", "─".repeat(BOX_WIDTH)).red());
     println!();
     println!("{}", "  Conflicting files:".yellow().bold());
@@ -116,7 +157,12 @@ pub fn print_already_on_base(branch: &str) {
     let msg = format!("You're on {} - no check needed", branch);
     println!();
     println!("{}", format!("╭{}╮", "─".repeat(w)).yellow());
-    println!("{}", format!("│{:^w$}│", "ALREADY ON BASE BRANCH", w = w).yellow().bold());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "ALREADY ON BASE BRANCH", w = w)
+            .yellow()
+            .bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = w).yellow());
     println!("{}", format!("│{:^w$}│", msg, w = w).yellow());
     println!("{}", format!("╰{}╯", "─".repeat(w)).yellow());
@@ -152,20 +198,32 @@ pub fn print_stats(stats: &crate::git::BranchStats) {
     if stats.ahead > 0 || stats.behind > 0 {
         print!("  ");
         if stats.ahead > 0 {
-            print!("{} {}", "↑".green(), format!("{} ahead", stats.ahead).green());
+            print!(
+                "{} {}",
+                "↑".green(),
+                format!("{} ahead", stats.ahead).green()
+            );
         }
         if stats.ahead > 0 && stats.behind > 0 {
             print!("  ");
         }
         if stats.behind > 0 {
-            print!("{} {}", "↓".yellow(), format!("{} behind", stats.behind).yellow());
+            print!(
+                "{} {}",
+                "↓".yellow(),
+                format!("{} behind", stats.behind).yellow()
+            );
         }
         println!();
     }
 
     // Files changed
     if stats.files_changed > 0 {
-        println!("  {} {} files changed", "📝".dimmed(), stats.files_changed.to_string().cyan());
+        println!(
+            "  {} {} files changed",
+            "📝".dimmed(),
+            stats.files_changed.to_string().cyan()
+        );
     }
 
     // Insertions/Deletions
@@ -185,7 +243,11 @@ pub fn print_stats(stats: &crate::git::BranchStats) {
         if stats.merge_base_subject.is_empty() {
             println!("  🔗 Merge base: {}", stats.merge_base.dimmed());
         } else {
-            println!("  🔗 Merge base: {} {}", stats.merge_base.dimmed(), stats.merge_base_subject.dimmed());
+            println!(
+                "  🔗 Merge base: {} {}",
+                stats.merge_base.dimmed(),
+                stats.merge_base_subject.dimmed()
+            );
         }
     }
 
@@ -198,9 +260,20 @@ pub fn print_stats(stats: &crate::git::BranchStats) {
 pub fn print_hook_installed(path: &str) {
     let w: usize = 54;
     println!("{}", format!("╭{}╮", "─".repeat(w)).green());
-    println!("{}", format!("│{:^w$}│", "HOOK INSTALLED", w = w).green().bold());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "HOOK INSTALLED", w = w).green().bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = w).green());
-    println!("{}", format!("│{:^w$}│", "Cleared for Push will now run on every push.", w = w).green());
+    println!(
+        "{}",
+        format!(
+            "│{:^w$}│",
+            "Cleared for Push will now run on every push.",
+            w = w
+        )
+        .green()
+    );
     println!("{}", format!("╰{}╯", "─".repeat(w)).green());
     println!();
     println!("  {} {}", "Location:".bold(), path.dimmed());
@@ -212,9 +285,15 @@ pub fn print_hook_installed(path: &str) {
 pub fn print_hook_chained() {
     let w: usize = 54;
     println!("{}", format!("╭{}╮", "─".repeat(w)).green());
-    println!("{}", format!("│{:^w$}│", "HOOK CHAINED", w = w).green().bold());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "HOOK CHAINED", w = w).green().bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = w).green());
-    println!("{}", format!("│{:^w$}│", "Appended to existing pre-push hook.", w = w).green());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "Appended to existing pre-push hook.", w = w).green()
+    );
     println!("{}", format!("╰{}╯", "─".repeat(w)).green());
     println!();
     println!("  {} Your existing hook will still run.", "Note:".bold());
@@ -226,9 +305,22 @@ pub fn print_hook_chained() {
 pub fn print_hook_already_installed() {
     let w: usize = 44;
     println!("{}", format!("╭{}╮", "─".repeat(w)).yellow());
-    println!("{}", format!("│{:^w$}│", "ALREADY INSTALLED", w = w).yellow().bold());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "ALREADY INSTALLED", w = w)
+            .yellow()
+            .bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = w).yellow());
-    println!("{}", format!("│{:^w$}│", "Cleared for Push hook is already active.", w = w).yellow());
+    println!(
+        "{}",
+        format!(
+            "│{:^w$}│",
+            "Cleared for Push hook is already active.",
+            w = w
+        )
+        .yellow()
+    );
     println!("{}", format!("╰{}╯", "─".repeat(w)).yellow());
     println!();
 }
@@ -237,14 +329,26 @@ pub fn print_hook_already_installed() {
 pub fn print_hook_exists(path: &str) {
     let w: usize = 54;
     println!("{}", format!("╭{}╮", "─".repeat(w)).red());
-    println!("{}", format!("│{:^w$}│", "EXISTING HOOK DETECTED", w = w).red().bold());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "EXISTING HOOK DETECTED", w = w)
+            .red()
+            .bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = w).red());
-    println!("{}", format!("│{:^w$}│", "A pre-push hook already exists.", w = w).red());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "A pre-push hook already exists.", w = w).red()
+    );
     println!("{}", format!("╰{}╯", "─".repeat(w)).red());
     println!();
     println!("  {} {}", "Path:".bold(), path.dimmed());
     println!();
-    println!("  {} Use {} to chain with the existing hook.", "Tip:".bold(), "--force".cyan());
+    println!(
+        "  {} Use {} to chain with the existing hook.",
+        "Tip:".bold(),
+        "--force".cyan()
+    );
     println!("       This will append clearedforpush to your existing hook.");
     println!();
 }
@@ -253,9 +357,15 @@ pub fn print_hook_exists(path: &str) {
 pub fn print_hook_removed() {
     let w: usize = 44;
     println!("{}", format!("╭{}╮", "─".repeat(w)).green());
-    println!("{}", format!("│{:^w$}│", "HOOK REMOVED", w = w).green().bold());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "HOOK REMOVED", w = w).green().bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = w).green());
-    println!("{}", format!("│{:^w$}│", "Pre-push hook has been uninstalled.", w = w).green());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "Pre-push hook has been uninstalled.", w = w).green()
+    );
     println!("{}", format!("╰{}╯", "─".repeat(w)).green());
     println!();
 }
@@ -264,9 +374,20 @@ pub fn print_hook_removed() {
 pub fn print_hook_section_removed() {
     let w: usize = 54;
     println!("{}", format!("╭{}╮", "─".repeat(w)).green());
-    println!("{}", format!("│{:^w$}│", "HOOK REMOVED", w = w).green().bold());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "HOOK REMOVED", w = w).green().bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = w).green());
-    println!("{}", format!("│{:^w$}│", "Cleared for Push section removed from hook.", w = w).green());
+    println!(
+        "{}",
+        format!(
+            "│{:^w$}│",
+            "Cleared for Push section removed from hook.",
+            w = w
+        )
+        .green()
+    );
     println!("{}", format!("╰{}╯", "─".repeat(w)).green());
     println!();
     println!("  {} Other hook content was preserved.", "Note:".bold());
@@ -277,9 +398,15 @@ pub fn print_hook_section_removed() {
 pub fn print_hook_not_found() {
     let w: usize = 44;
     println!("{}", format!("╭{}╮", "─".repeat(w)).yellow());
-    println!("{}", format!("│{:^w$}│", "NO HOOK FOUND", w = w).yellow().bold());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "NO HOOK FOUND", w = w).yellow().bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = w).yellow());
-    println!("{}", format!("│{:^w$}│", "No pre-push hook exists.", w = w).yellow());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "No pre-push hook exists.", w = w).yellow()
+    );
     println!("{}", format!("╰{}╯", "─".repeat(w)).yellow());
     println!();
 }
@@ -288,9 +415,20 @@ pub fn print_hook_not_found() {
 pub fn print_hook_not_installed() {
     let w: usize = 54;
     println!("{}", format!("╭{}╮", "─".repeat(w)).yellow());
-    println!("{}", format!("│{:^w$}│", "NOT INSTALLED", w = w).yellow().bold());
+    println!(
+        "{}",
+        format!("│{:^w$}│", "NOT INSTALLED", w = w).yellow().bold()
+    );
     println!("{}", format!("│{:^w$}│", "", w = w).yellow());
-    println!("{}", format!("│{:^w$}│", "Cleared for Push is not in the current hook.", w = w).yellow());
+    println!(
+        "{}",
+        format!(
+            "│{:^w$}│",
+            "Cleared for Push is not in the current hook.",
+            w = w
+        )
+        .yellow()
+    );
     println!("{}", format!("╰{}╯", "─".repeat(w)).yellow());
     println!();
 }
@@ -351,10 +489,7 @@ pub fn print_pr_results(results: &[crate::github::PrCheckResult]) {
     // Summary
     println!();
     if conflicts.is_empty() {
-        println!(
-            "  {} No conflicts with open PRs",
-            "✓".green().bold()
-        );
+        println!("  {} No conflicts with open PRs", "✓".green().bold());
     } else {
         println!(
             "  {} {} {} with conflicts",

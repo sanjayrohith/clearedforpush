@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use colored::Colorize;
+use crate::config::Config;
 use crate::git;
 use crate::github;
 use crate::output::{CheckOutput, OutputFormat};
@@ -11,6 +12,7 @@ pub fn check_conflicts(
     skip_prs: bool,
     show_diff: bool,
     format: OutputFormat,
+    config: &Config,
 ) -> Result<()> {
     // For non-text formats, suppress all interactive output
     let is_text = format == OutputFormat::Text;
@@ -95,8 +97,16 @@ pub fn check_conflicts(
     if is_text {
         ui::print_loading("Simulating merge");
     }
-    let result = git::check_merge_tree(&current_branch, &base_ref)
+    let mut result = git::check_merge_tree(&current_branch, &base_ref)
         .context("Failed to check merge tree")?;
+
+    // Apply ignore patterns from config
+    if !config.ignore_patterns.is_empty() && result.has_conflicts {
+        result.conflicted_files = config.filter_conflicts(&result.conflicted_files);
+        if result.conflicted_files.is_empty() {
+            result.has_conflicts = false;
+        }
+    }
 
     // Get conflict diffs if requested and conflicts exist
     let conflict_diffs = if (show_diff || format == OutputFormat::Json) && result.has_conflicts {
@@ -277,7 +287,13 @@ fn fetch_open_prs(base_branch: &str) -> Result<Vec<github::PullRequest>> {
         return github::list_prs_gh_cli(base_branch);
     }
 
-    if let Some(token) = github::github_token() {
+    // Check env var first, then config file
+    let token = github::github_token().or_else(|| {
+        let cfg = crate::config::Config::load();
+        cfg.github_token
+    });
+
+    if let Some(token) = token {
         let slug = github::get_repo_slug()
             .context("Could not determine GitHub repository")?;
         return github::list_prs_api(base_branch, &token, &slug);

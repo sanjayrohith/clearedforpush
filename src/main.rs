@@ -1,6 +1,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 
+mod config;
 mod conflict_checker;
 mod git;
 mod github;
@@ -38,8 +39,8 @@ enum Commands {
         diff: bool,
 
         /// Output format: text, json, compact
-        #[arg(long, default_value = "text")]
-        format: String,
+        #[arg(long)]
+        format: Option<String>,
     },
 
     /// Install preflight as a pre-push git hook
@@ -51,6 +52,9 @@ enum Commands {
 
     /// Uninstall the preflight pre-push git hook
     UninstallHook,
+
+    /// Initialize a .preflight.toml config file in the current repo
+    Init,
 }
 
 fn main() -> Result<()> {
@@ -58,18 +62,43 @@ fn main() -> Result<()> {
 
     match cli.command {
         Commands::Check { base, stats, skip_prs, diff, format } => {
-            let fmt = output::OutputFormat::from_str(&format)
+            // Load config file
+            let cfg = config::Config::load();
+
+            // CLI flags override config. Config provides defaults.
+            let effective_base = base.or(cfg.base_branch.clone());
+            let effective_stats = stats || cfg.stats;
+            let effective_diff = diff || cfg.diff;
+            let effective_skip_prs = skip_prs || !cfg.check_prs;
+
+            // Format: CLI flag > config > default "text"
+            let format_str = format
+                .or(cfg.format.clone())
+                .unwrap_or_else(|| "text".to_string());
+
+            let fmt = output::OutputFormat::from_str(&format_str)
                 .unwrap_or_else(|| {
-                    eprintln!("Unknown format '{}'. Using 'text'. Options: text, json, compact", format);
+                    eprintln!("Unknown format '{}'. Using 'text'. Options: text, json, compact", format_str);
                     output::OutputFormat::Text
                 });
-            conflict_checker::check_conflicts(base, stats, skip_prs, diff, fmt)?;
+
+            conflict_checker::check_conflicts(
+                effective_base,
+                effective_stats,
+                effective_skip_prs,
+                effective_diff,
+                fmt,
+                &cfg,
+            )?;
         }
         Commands::InstallHook { force } => {
             install_hook_cmd(force)?;
         }
         Commands::UninstallHook => {
             uninstall_hook_cmd()?;
+        }
+        Commands::Init => {
+            init_config()?;
         }
     }
 
@@ -119,6 +148,51 @@ fn uninstall_hook_cmd() -> Result<()> {
             ui::print_hook_not_installed();
         }
     }
+
+    Ok(())
+}
+
+fn init_config() -> Result<()> {
+    ui::print_header();
+    println!();
+
+    let config_path = ".preflight.toml";
+    if std::path::Path::new(config_path).exists() {
+        println!("  {} {} already exists.", "ℹ".yellow(), config_path);
+        return Ok(());
+    }
+
+    let template = r#"# Preflight configuration
+# See: https://github.com/yourusername/preflight
+
+# Base branch to check against (auto-detected if not set)
+# base = "main"
+
+# Whether to check open PRs for conflicts (default: true)
+# check_prs = true
+
+# Default output format: "text", "json", or "compact"
+# format = "text"
+
+# Show statistics by default
+# stats = false
+
+# Show conflict diff hunks by default
+# diff = false
+
+# Paths to ignore when reporting conflicts
+# ignore = ["*.lock", "docs/**", "*.generated.*"]
+
+# [github]
+# token = "ghp_..."  # Alternative to GITHUB_TOKEN env var
+"#;
+
+    std::fs::write(config_path, template)?;
+
+    use colored::Colorize;
+    println!("  {} Created {}", "✓".green(), config_path.cyan());
+    println!("  {} Edit the file to configure preflight for this repo.", "→".dimmed());
+    println!();
 
     Ok(())
 }

@@ -237,6 +237,44 @@ If other hook content exists, only the preflight section is removed.
 
 ---
 
+## ⚙️ Configuration
+
+Create a `.preflight.toml` in your repo root to set defaults:
+
+```bash
+preflight init
+```
+
+This generates a commented config file. Available options:
+
+```toml
+# Base branch (auto-detected if not set)
+base = "develop"
+
+# Check open PRs for conflicts (default: true)
+check_prs = true
+
+# Default output format: "text", "json", or "compact"
+format = "text"
+
+# Show statistics by default
+stats = true
+
+# Show conflict diffs by default
+diff = false
+
+# Paths to ignore when reporting conflicts
+ignore = ["*.lock", "docs/**", "*.generated.*"]
+
+[github]
+# Alternative to GITHUB_TOKEN env var
+token = "ghp_..."
+```
+
+CLI flags always override config file values.
+
+---
+
 ## 🔧 How It Works
 
 Preflight uses Git's native plumbing command `merge-tree` in `--write-tree` mode:
@@ -310,7 +348,7 @@ Yes — designed to run in under 2 seconds for typical repos. Automatic hook ins
 - [x] **Git hook integration** — `install-hook` / `uninstall-hook`
 - [x] **GitHub PR awareness** — check conflicts against open PRs
 - [x] **Better reporting** — diff hunks, JSON output, compact mode
-- [ ] **Config file** — `.preflight.toml` for per-project defaults
+- [x] **Configuration** — `.preflight.toml` with all options
 - [ ] **CI integrations** — GitHub Actions, GitLab CI templates
 
 ---

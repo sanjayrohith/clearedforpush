@@ -3,28 +3,28 @@ use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
-const HOOK_MARKER_START: &str = "# --- preflight hook start ---";
-const HOOK_MARKER_END: &str = "# --- preflight hook end ---";
+const HOOK_MARKER_START: &str = "# --- clearedforpush hook start ---";
+const HOOK_MARKER_END: &str = "# --- clearedforpush hook end ---";
 
-const HOOK_SCRIPT: &str = r#"# --- preflight hook start ---
-# Installed by preflight (https://github.com/yourusername/preflight)
+const HOOK_SCRIPT: &str = r#"# --- clearedforpush hook start ---
+# Installed by clearedforpush (https://github.com/yourusername/clearedforpush)
 # Runs conflict check before push. Use --no-verify to bypass.
 
-if command -v preflight &> /dev/null; then
+if command -v clearedforpush &> /dev/null; then
     echo ""
-    preflight check
-    PREFLIGHT_EXIT=$?
-    if [ $PREFLIGHT_EXIT -eq 1 ]; then
+    clearedforpush check
+    CFP_EXIT=$?
+    if [ $CFP_EXIT -eq 1 ]; then
         echo ""
         echo "Push blocked: merge conflicts detected."
         echo "Resolve conflicts or use 'git push --no-verify' to bypass."
         exit 1
-    elif [ $PREFLIGHT_EXIT -eq 2 ]; then
+    elif [ $CFP_EXIT -eq 2 ]; then
         echo ""
-        echo "Preflight encountered an error. Allowing push to continue."
+        echo "clearedforpush encountered an error. Allowing push to continue."
     fi
 fi
-# --- preflight hook end ---"#;
+# --- clearedforpush hook end ---"#;
 
 /// Get the path to the pre-push hook file
 fn get_hook_path() -> Result<PathBuf> {
@@ -42,7 +42,7 @@ fn get_hook_path() -> Result<PathBuf> {
 }
 
 /// Check if an existing hook contains our markers
-fn has_preflight_hook(content: &str) -> bool {
+fn has_clearedforpush_hook(content: &str) -> bool {
     content.contains(HOOK_MARKER_START) && content.contains(HOOK_MARKER_END)
 }
 
@@ -62,7 +62,7 @@ pub fn install_hook(force: bool) -> Result<HookInstallResult> {
             .context("Failed to read existing hook")?;
 
         // Already has our hook installed
-        if has_preflight_hook(&existing_content) {
+        if has_clearedforpush_hook(&existing_content) {
             return Ok(HookInstallResult::AlreadyInstalled);
         }
 
@@ -103,12 +103,12 @@ pub fn uninstall_hook() -> Result<HookUninstallResult> {
     let content = fs::read_to_string(&hook_path)
         .context("Failed to read hook file")?;
 
-    if !has_preflight_hook(&content) {
+    if !has_clearedforpush_hook(&content) {
         return Ok(HookUninstallResult::NotInstalled);
     }
 
     // Remove our section from the hook
-    let cleaned = remove_preflight_section(&content);
+    let cleaned = remove_clearedforpush_section(&content);
     let trimmed = cleaned.trim();
 
     // If only the shebang (or nothing) remains, remove the file entirely
@@ -125,8 +125,8 @@ pub fn uninstall_hook() -> Result<HookUninstallResult> {
     Ok(HookUninstallResult::SectionRemoved)
 }
 
-/// Remove the preflight section from hook content
-fn remove_preflight_section(content: &str) -> String {
+/// Remove the clearedforpush section from hook content
+fn remove_clearedforpush_section(content: &str) -> String {
     let mut result = String::new();
     let mut skipping = false;
 

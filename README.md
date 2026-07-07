@@ -1,21 +1,21 @@
 <div align="center">
 
-# ✈️ Preflight
+# ✈️ Cleared for Push
 
 ### Know before you push
 
 **Catch merge conflicts _before_ you push — not during CI, not in PR review, not when your teammate pings you at 5pm.**
 
-[![Crates.io](https://img.shields.io/crates/v/preflight.svg)](https://crates.io/crates/preflight)
+[![Crates.io](https://img.shields.io/crates/v/clearedforpush.svg)](https://crates.io/crates/clearedforpush)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#-license)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 [![Git](https://img.shields.io/badge/git-2.38%2B-red.svg)](https://git-scm.com)
 
-[Quick Start](#-quick-start) • [Why Preflight](#-why-preflight) • [Install](#-installation) • [Usage](#-usage) • [How It Works](#-how-it-works)
+[Quick Start](#-quick-start) • [Why Cleared for Push](#-how-cleared-for-push-saves-you) • [Install](#-installation) • [Usage](#-usage) • [How It Works](#-how-it-works)
 
 <br/>
 
-<img src="assets/screenshot.png" alt="Preflight in action" width="700"/>
+<img src="assets/screenshot.png" alt="Cleared for Push in action" width="700"/>
 
 </div>
 
@@ -39,10 +39,10 @@ By the time conflicts surface, **you've lost all context.** The code is no longe
 
 ## 🎯 The Solution
 
-**Preflight tells you the moment a conflict exists — before you push.**
+**Cleared for Push tells you the moment a conflict exists — before you push.**
 
 ```bash
-$ preflight check
+$ clearedforpush check
 ```
 
 <table>
@@ -82,10 +82,10 @@ Fast. Safe. Zero setup. **It never touches your working directory.**
 
 ---
 
-## ⏱️ How Preflight Saves You
+## ⏱️ How Cleared for Push Saves You
 
-| Without Preflight | With Preflight |
-|:------------------|:---------------|
+| Without Cleared for Push | With Cleared for Push |
+|:-------------------------|:----------------------|
 | 🔴 Push → wait for CI → CI fails | 🟢 Check locally in ~1 second |
 | 🔴 Context lost, code gone cold | 🟢 Fix while it's fresh in your head |
 | 🔴 Teammates blocked on your branch | 🟢 Team stays unblocked |
@@ -100,11 +100,11 @@ One command saves you a broken CI run, a context switch, and a frustrating rebas
 
 ```bash
 # 1. Install
-cargo install preflight
+cargo install clearedforpush
 
 # 2. Go to your repo and check
 cd your-git-repo
-preflight check
+clearedforpush check
 ```
 
 That's the whole thing. If there's a conflict, you'll know instantly — with the exact files listed.
@@ -128,13 +128,41 @@ That's the whole thing. If there's a conflict, you'll know instantly — with th
 
 **From crates.io (recommended)**
 ```bash
-cargo install preflight
+cargo install clearedforpush
+```
+
+**Homebrew (macOS/Linux)**
+```bash
+brew install yourusername/tap/clearedforpush
+```
+
+**AUR (Arch Linux)**
+```bash
+yay -S clearedforpush
+```
+
+**Download prebuilt binary**
+
+Grab the latest from [Releases](https://github.com/yourusername/clearedforpush/releases):
+
+| Platform | Download |
+|----------|----------|
+| Linux (x86_64) | `clearedforpush-vX.Y.Z-x86_64-unknown-linux-musl.tar.gz` |
+| macOS (Intel) | `clearedforpush-vX.Y.Z-x86_64-apple-darwin.tar.gz` |
+| macOS (Apple Silicon) | `clearedforpush-vX.Y.Z-aarch64-apple-darwin.tar.gz` |
+| Windows (x86_64) | `clearedforpush-vX.Y.Z-x86_64-pc-windows-msvc.zip` |
+
+```bash
+# Example: Linux
+curl -LO https://github.com/yourusername/clearedforpush/releases/latest/download/clearedforpush-v0.1.0-x86_64-unknown-linux-musl.tar.gz
+tar xzf clearedforpush-*.tar.gz
+sudo mv clearedforpush /usr/local/bin/
 ```
 
 **From source**
 ```bash
-git clone https://github.com/yourusername/preflight
-cd preflight
+git clone https://github.com/yourusername/clearedforpush
+cd clearedforpush
 cargo install --path .
 ```
 
@@ -148,13 +176,13 @@ cargo install --path .
 
 ### Basic check
 ```bash
-preflight check
+clearedforpush check
 ```
 Checks your current branch against the base branch (auto-detected as `main` or `master`).
 
 ### With statistics
 ```bash
-preflight check --stats
+clearedforpush check --stats
 ```
 Adds a detailed breakdown:
 - **↑ Ahead** — commits you're ahead of base
@@ -164,18 +192,18 @@ Adds a detailed breakdown:
 
 ### Against a custom base branch
 ```bash
-preflight check --base develop
+clearedforpush check --base develop
 ```
 
 ### Show conflict diffs
 ```bash
-preflight check --diff
+clearedforpush check --diff
 ```
 When conflicts exist, shows the actual diff hunks with syntax highlighting (additions in green, deletions in red).
 
 ### JSON output (for CI/scripting)
 ```bash
-preflight check --format json --skip-prs
+clearedforpush check --format json --skip-prs
 ```
 Outputs a stable JSON schema:
 ```json
@@ -194,21 +222,21 @@ Outputs a stable JSON schema:
 
 ### Compact output
 ```bash
-preflight check --format compact
+clearedforpush check --format compact
 ```
 Single-line output: `OK: no conflicts` or `CONFLICT: file1.rs, file2.rs`
 
 ### In a script or CI
 ```bash
-preflight check && git push
+clearedforpush check && git push
 ```
-Preflight exits `0` when clean and `1` when conflicts exist, so it composes cleanly with `&&` and CI pipelines.
+Exits `0` when clean and `1` when conflicts exist, so it composes cleanly with `&&` and CI pipelines.
 
 ### Git Hook (auto-check on every push)
 
 ```bash
 # Install the hook
-preflight install-hook
+clearedforpush install-hook
 
 # That's it! Now every push runs a conflict check first.
 # If conflicts exist, the push is blocked.
@@ -217,32 +245,32 @@ preflight install-hook
 git push --no-verify
 ```
 
-If you already have a pre-push hook, preflight will warn you:
+If you already have a pre-push hook, it will warn you:
 ```
 EXISTING HOOK DETECTED
 A pre-push hook already exists.
 Tip: Use --force to chain with the existing hook.
 ```
 
-Use `--force` to safely append preflight to your existing hook:
+Use `--force` to safely append to your existing hook:
 ```bash
-preflight install-hook --force
+clearedforpush install-hook --force
 ```
 
 To remove the hook:
 ```bash
-preflight uninstall-hook
+clearedforpush uninstall-hook
 ```
-If other hook content exists, only the preflight section is removed.
+If other hook content exists, only the clearedforpush section is removed.
 
 ---
 
 ## ⚙️ Configuration
 
-Create a `.preflight.toml` in your repo root to set defaults:
+Create a `.clearedforpush.toml` in your repo root to set defaults:
 
 ```bash
-preflight init
+clearedforpush init
 ```
 
 This generates a commented config file. Available options:
@@ -277,7 +305,7 @@ CLI flags always override config file values.
 
 ## 🔧 How It Works
 
-Preflight uses Git's native plumbing command `merge-tree` in `--write-tree` mode:
+Cleared for Push uses Git's native plumbing command `merge-tree` in `--write-tree` mode:
 
 ```bash
 git merge-tree --write-tree <base-branch> <current-branch>
@@ -297,16 +325,16 @@ This computes what a merge **would** produce — without actually performing it.
 - ❌ No branch updates
 - ❌ No stash operations
 
-> **Why not `git merge --no-commit`?** That still mutates your index and can leave you in a half-merged state. Preflight uses the lower-level plumbing so your repo is guaranteed untouched.
+> **Why not `git merge --no-commit`?** That still mutates your index and can leave you in a half-merged state. Cleared for Push uses the lower-level plumbing so your repo is guaranteed untouched.
 
 ---
 
 ## ❓ FAQ
 
 <details>
-<summary><b>Does Preflight modify my repository?</b></summary>
+<summary><b>Does it modify my repository?</b></summary>
 <br/>
-No. Preflight only reads. Your working directory, index, HEAD, and branches remain completely untouched. This is a hard guarantee.
+No. It only reads. Your working directory, index, HEAD, and branches remain completely untouched. This is a hard guarantee.
 </details>
 
 <details>
@@ -318,13 +346,13 @@ Git 2.38.0 or later (October 2022), which introduced the <code>--write-tree</cod
 <details>
 <summary><b>Can I use a base branch other than main?</b></summary>
 <br/>
-Yes — <code>preflight check --base develop</code> works with any branch.
+Yes — <code>clearedforpush check --base develop</code> works with any branch.
 </details>
 
 <details>
 <summary><b>Does it work with remote branches?</b></summary>
 <br/>
-Yes. Preflight fetches the latest state of the base branch from origin before checking, so you always compare against the most recent remote state.
+Yes. It fetches the latest state of the base branch from origin before checking, so you always compare against the most recent remote state.
 </details>
 
 <details>
@@ -336,7 +364,7 @@ Absolutely. Use <code>--format json</code> for structured output with a stable s
 <details>
 <summary><b>Is it fast enough for a git hook?</b></summary>
 <br/>
-Yes — designed to run in under 2 seconds for typical repos. Automatic hook installation is on the roadmap.
+Yes — designed to run in under 2 seconds for typical repos.
 </details>
 
 ---
@@ -348,7 +376,8 @@ Yes — designed to run in under 2 seconds for typical repos. Automatic hook ins
 - [x] **Git hook integration** — `install-hook` / `uninstall-hook`
 - [x] **GitHub PR awareness** — check conflicts against open PRs
 - [x] **Better reporting** — diff hunks, JSON output, compact mode
-- [x] **Configuration** — `.preflight.toml` with all options
+- [x] **Configuration** — `.clearedforpush.toml` with all options
+- [x] **Distribution** — CI/CD, prebuilt binaries, AUR, Homebrew
 - [ ] **CI integrations** — GitHub Actions, GitLab CI templates
 
 ---
@@ -356,12 +385,6 @@ Yes — designed to run in under 2 seconds for typical repos. Automatic hook ins
 ## 🤝 Contributing
 
 Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
-
-**Great first issues:**
-- Windows testing and support
-- Git hook auto-installation
-- Config file support
-- PR conflict detection
 
 ---
 
@@ -380,7 +403,7 @@ at your option.
 
 **Built with ❤️ by developers, for developers**
 
-[Report a Bug](https://github.com/yourusername/preflight/issues) • [Request a Feature](https://github.com/yourusername/preflight/issues)
+[Report a Bug](https://github.com/yourusername/clearedforpush/issues) • [Request a Feature](https://github.com/yourusername/clearedforpush/issues)
 
 <br/>
 

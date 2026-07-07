@@ -2,11 +2,11 @@ use colored::Colorize;
 
 const BOX_WIDTH: usize = 54;
 
-/// Print the Preflight header banner
+/// Print the Cleared for Push header banner
 pub fn print_header() {
     println!();
     println!("{}", format!("╔{}╗", "═".repeat(BOX_WIDTH)).cyan());
-    println!("{}", format!("║{:^w$}║", "PREFLIGHT", w = BOX_WIDTH).cyan());
+    println!("{}", format!("║{:^w$}║", "CLEARED FOR PUSH", w = BOX_WIDTH).cyan());
     println!("{}", format!("║{:^w$}║", "Pre-push Merge Conflict Predictor", w = BOX_WIDTH).cyan());
     println!("{}", format!("╚{}╝", "═".repeat(BOX_WIDTH)).cyan());
 }
@@ -200,7 +200,7 @@ pub fn print_hook_installed(path: &str) {
     println!("{}", format!("╭{}╮", "─".repeat(w)).green());
     println!("{}", format!("│{:^w$}│", "HOOK INSTALLED", w = w).green().bold());
     println!("{}", format!("│{:^w$}│", "", w = w).green());
-    println!("{}", format!("│{:^w$}│", "Preflight will now run on every push.", w = w).green());
+    println!("{}", format!("│{:^w$}│", "Cleared for Push will now run on every push.", w = w).green());
     println!("{}", format!("╰{}╯", "─".repeat(w)).green());
     println!();
     println!("  {} {}", "Location:".bold(), path.dimmed());
@@ -228,7 +228,7 @@ pub fn print_hook_already_installed() {
     println!("{}", format!("╭{}╮", "─".repeat(w)).yellow());
     println!("{}", format!("│{:^w$}│", "ALREADY INSTALLED", w = w).yellow().bold());
     println!("{}", format!("│{:^w$}│", "", w = w).yellow());
-    println!("{}", format!("│{:^w$}│", "Preflight hook is already active.", w = w).yellow());
+    println!("{}", format!("│{:^w$}│", "Cleared for Push hook is already active.", w = w).yellow());
     println!("{}", format!("╰{}╯", "─".repeat(w)).yellow());
     println!();
 }
@@ -245,7 +245,7 @@ pub fn print_hook_exists(path: &str) {
     println!("  {} {}", "Path:".bold(), path.dimmed());
     println!();
     println!("  {} Use {} to chain with the existing hook.", "Tip:".bold(), "--force".cyan());
-    println!("       This will append preflight to your existing hook.");
+    println!("       This will append clearedforpush to your existing hook.");
     println!();
 }
 
@@ -266,7 +266,7 @@ pub fn print_hook_section_removed() {
     println!("{}", format!("╭{}╮", "─".repeat(w)).green());
     println!("{}", format!("│{:^w$}│", "HOOK REMOVED", w = w).green().bold());
     println!("{}", format!("│{:^w$}│", "", w = w).green());
-    println!("{}", format!("│{:^w$}│", "Preflight section removed from pre-push hook.", w = w).green());
+    println!("{}", format!("│{:^w$}│", "Cleared for Push section removed from hook.", w = w).green());
     println!("{}", format!("╰{}╯", "─".repeat(w)).green());
     println!();
     println!("  {} Other hook content was preserved.", "Note:".bold());
@@ -284,13 +284,13 @@ pub fn print_hook_not_found() {
     println!();
 }
 
-/// Print preflight not installed in hook
+/// Print clearedforpush not installed in hook
 pub fn print_hook_not_installed() {
     let w: usize = 54;
     println!("{}", format!("╭{}╮", "─".repeat(w)).yellow());
     println!("{}", format!("│{:^w$}│", "NOT INSTALLED", w = w).yellow().bold());
     println!("{}", format!("│{:^w$}│", "", w = w).yellow());
-    println!("{}", format!("│{:^w$}│", "Preflight is not in the current pre-push hook.", w = w).yellow());
+    println!("{}", format!("│{:^w$}│", "Cleared for Push is not in the current hook.", w = w).yellow());
     println!("{}", format!("╰{}╯", "─".repeat(w)).yellow());
     println!();
 }

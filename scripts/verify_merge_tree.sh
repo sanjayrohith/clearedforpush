@@ -15,13 +15,13 @@ git --version
 echo
 
 # Create temp test repo
-TEST_DIR=$(mktemp -d -t preflight-test-XXXXXX)
+TEST_DIR=$(mktemp -d -t clearedforpush-test-XXXXXX)
 echo "Step 2: Creating test repository in $TEST_DIR"
 cd "$TEST_DIR"
 
 git init
-git config user.email "test@preflight.test"
-git config user.name "Preflight Test"
+git config user.email "test@clearedforpush.test"
+git config user.name "clearedforpush Test"
 echo
 
 # Create base commit

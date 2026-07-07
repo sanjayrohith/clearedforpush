@@ -1,11 +1,11 @@
 [package]
-name = "preflight"
+name = "clearedforpush"
 version = "0.1.0"
 edition = "2021"
-authors = ["Preflight Contributors"]
+authors = ["Cleared for Push Contributors"]
 description = "Pre-push merge conflict predictor"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/TBD/preflight"
+repository = "https://github.com/yourusername/clearedforpush"
 readme = "README.md"
 
 [dependencies]

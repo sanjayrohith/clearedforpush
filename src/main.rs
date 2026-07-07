@@ -10,7 +10,7 @@ mod output;
 mod ui;
 
 #[derive(Parser)]
-#[command(name = "preflight")]
+#[command(name = "clearedforpush")]
 #[command(about = "Pre-push merge conflict predictor", long_about = None)]
 #[command(version)]
 struct Cli {
@@ -43,17 +43,17 @@ enum Commands {
         format: Option<String>,
     },
 
-    /// Install preflight as a pre-push git hook
+    /// Install clearedforpush as a pre-push git hook
     InstallHook {
         /// Overwrite or chain with existing pre-push hook
         #[arg(short, long)]
         force: bool,
     },
 
-    /// Uninstall the preflight pre-push git hook
+    /// Uninstall the clearedforpush pre-push git hook
     UninstallHook,
 
-    /// Initialize a .preflight.toml config file in the current repo
+    /// Initialize a .clearedforpush.toml config file in the current repo
     Init,
 }
 
@@ -156,14 +156,14 @@ fn init_config() -> Result<()> {
     ui::print_header();
     println!();
 
-    let config_path = ".preflight.toml";
+    let config_path = ".clearedforpush.toml";
     if std::path::Path::new(config_path).exists() {
         println!("  {} {} already exists.", "ℹ".yellow(), config_path);
         return Ok(());
     }
 
-    let template = r#"# Preflight configuration
-# See: https://github.com/yourusername/preflight
+    let template = r#"# Cleared for Push configuration
+# See: https://github.com/yourusername/clearedforpush
 
 # Base branch to check against (auto-detected if not set)
 # base = "main"
@@ -191,7 +191,7 @@ fn init_config() -> Result<()> {
 
     use colored::Colorize;
     println!("  {} Created {}", "✓".green(), config_path.cyan());
-    println!("  {} Edit the file to configure preflight for this repo.", "→".dimmed());
+    println!("  {} Edit the file to configure clearedforpush for this repo.", "→".dimmed());
     println!();
 
     Ok(())

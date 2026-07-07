@@ -1,14 +1,14 @@
-# Contributing to Preflight
+# Contributing to Cleared for Push
 
-Thank you for your interest in contributing to Preflight! 🎉
+Thank you for your interest in contributing to Cleared for Push! 🎉
 
 ## Getting Started
 
 1. **Fork the repository**
 2. **Clone your fork:**
    ```bash
-   git clone https://github.com/yourusername/preflight
-   cd preflight
+   git clone https://github.com/yourusername/clearedforpush
+   cd clearedforpush
    ```
 3. **Build the project:**
    ```bash
@@ -27,7 +27,7 @@ Thank you for your interest in contributing to Preflight! 🎉
 
 ### Project Structure
 ```
-preflight/
+clearedforpush/
 ├── src/
 │   ├── main.rs              # CLI entry point
 │   ├── git.rs               # Git operations
@@ -41,7 +41,7 @@ preflight/
 ## How to Contribute
 
 ### Reporting Bugs
-1. Check if the bug is already reported in [Issues](https://github.com/yourusername/preflight/issues)
+1. Check if the bug is already reported in [Issues](https://github.com/yourusername/clearedforpush/issues)
 2. If not, create a new issue with:
    - Clear description
    - Steps to reproduce
@@ -49,7 +49,7 @@ preflight/
    - Your environment (OS, Git version, Rust version)
 
 ### Suggesting Features
-1. Check [Feature Ideas](https://github.com/yourusername/preflight/discussions) first
+1. Check [Feature Ideas](https://github.com/yourusername/clearedforpush/discussions) first
 2. Open a new discussion to get feedback before implementing
 3. Explain the use case and benefit
 
@@ -116,13 +116,13 @@ cargo test -- --nocapture
 
 ## Questions?
 
-- Open a [Discussion](https://github.com/yourusername/preflight/discussions)
+- Open a [Discussion](https://github.com/yourusername/clearedforpush/discussions)
 - Ask in issues
 - Be patient and kind!
 
 ## Code of Conduct
 
-Be respectful, inclusive, and professional. We're all here to make Preflight better!
+Be respectful, inclusive, and professional. We're all here to make Cleared for Push better!
 
 ## License
 

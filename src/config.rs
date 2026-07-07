@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 use std::fs;
 
-/// Configuration loaded from `.preflight.toml`
+/// Configuration loaded from `.clearedforpush.toml`
 #[derive(Debug, Clone)]
 pub struct Config {
     /// Base branch override (e.g., "develop")
@@ -35,7 +35,7 @@ impl Default for Config {
 }
 
 impl Config {
-    /// Load config from `.preflight.toml` in the repo root.
+    /// Load config from `.clearedforpush.toml` in the repo root.
     /// Returns default config if file doesn't exist or can't be parsed.
     pub fn load() -> Self {
         if let Some(path) = find_config_file() {
@@ -70,7 +70,7 @@ impl Config {
     }
 }
 
-/// Find `.preflight.toml` starting from the git repo root
+/// Find `.clearedforpush.toml` starting from the git repo root
 fn find_config_file() -> Option<PathBuf> {
     // Try git repo root first
     if let Ok(output) = std::process::Command::new("git")
@@ -79,7 +79,7 @@ fn find_config_file() -> Option<PathBuf> {
     {
         if output.status.success() {
             let root = String::from_utf8_lossy(&output.stdout).trim().to_string();
-            let config_path = Path::new(&root).join(".preflight.toml");
+            let config_path = Path::new(&root).join(".clearedforpush.toml");
             if config_path.exists() {
                 return Some(config_path);
             }
@@ -87,7 +87,7 @@ fn find_config_file() -> Option<PathBuf> {
     }
 
     // Fallback: check current directory
-    let local = PathBuf::from(".preflight.toml");
+    let local = PathBuf::from(".clearedforpush.toml");
     if local.exists() {
         return Some(local);
     }

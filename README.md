@@ -116,36 +116,35 @@ Under the hood, Cleared for Push shells out to Git's own `merge-tree --write-tre
 to **simulate** a merge in memory. Nothing on disk is ever modified.
 
 ```
-        YOU                    CLEARED FOR PUSH                     GIT
-         │                            │                             │
-         │   clearedforpush check     │                             │
-         ├───────────────────────────▶                             │
-         │                            │                             │
-         │                            │  ①  detect current & base   │
-         │                            │─────────────────────────────▶
-         │                            │                             │
-         │                            │  ②  fetch base (read-only)  │
-         │                            │─────────────────────────────▶
-         │                            │                             │
-         │                            │  ③  merge-tree --write-tree │
-         │                            │─────────────────────────────▶
-         │                            │                             │
-         │                            │     simulated merge tree    │
-         │                            ◀─────────────────────────────┤
-         │                            │                             │
-         │                            │  ④  parse conflict markers  │
-         │                            │      (+ open-PR awareness)  │
-         │                            │                             │
-         │   ✓ CLEAR  /  ✗ HOLD       │                             │
-         ◀───────────────────────────┤                             │
-         │      exit 0  /  exit 1     │                             │
-         │                            │                             │
+YOU                            CLEARED FOR PUSH                 GIT
+  │                              │                                │
+  │                              clearedforpush check             │
+  ├──────────────────────────────▶                                │
+  │                              │                                │
+  │                              ①  detect current & base branch │
+  │                              ├────────────────────────────────▶
+  │                              │                                │
+  │                              ②  fetch base branch (read-only) │
+  │                              ├────────────────────────────────▶
+  │                              │                                │
+  │                              ③  merge-tree --write-tree      │
+  │                              ├────────────────────────────────▶
+  │                              │                                │
+  │                              simulated merge tree             │
+  │                              ◀────────────────────────────────┤
+  │                              │                                │
+  │                              ④  parse conflict markers       │
+  │                                  (+ open-PR awareness)        │
+  │                              │                                │
+  │                              ✓ CLEAR  /  ✗ HOLD               │
+  ◀──────────────────────────────┤
+  exit 0  /  exit 1
 
-   ┌─────────────────────────────────────────────────────────────────────┐
-   │  READ-ONLY GUARANTEE                                                  │
-   │  ✗ no working-dir changes   ✗ no index writes                        │
-   │  ✗ no branch updates        ✗ no stash operations                    │
-   └─────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────┐
+│  READ-ONLY GUARANTEE                                                       │
+│  ✗ no working-dir changes    ✗ no index writes                             │
+│  ✗ no branch updates         ✗ no stash operations                         │
+└────────────────────────────────────────────────────────────────────────────┘
 ```
 
 **Why not `git merge --no-commit`?** &nbsp;That still mutates your index and can leave you in a

@@ -325,6 +325,59 @@ sudo mv clearedforpush /usr/local/bin/
 
 </div>
 
+## ⚠ &nbsp;Troubleshooting
+
+### `clearedforpush: command not found` after `cargo install`
+
+`cargo install` places the binary in **`~/.cargo/bin`**. If that directory isn't on your
+`PATH`, your shell can't find the command — even though the install succeeded. This is the
+most common post-install issue and it affects **every** command, including `--help`.
+
+**Quick check** &mdash; confirm the binary exists and where it lives:
+```bash
+ls ~/.cargo/bin/clearedforpush     # should print the path
+echo $PATH | tr ':' '\n' | grep -q "$HOME/.cargo/bin" && echo "on PATH" || echo "NOT on PATH"
+```
+
+**Fix** &mdash; add `~/.cargo/bin` to your `PATH` (pick your shell):
+
+```bash
+# bash
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+
+# zsh
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+
+# fish
+fish_add_path "$HOME/.cargo/bin"
+```
+
+```powershell
+# Windows (PowerShell) — add %USERPROFILE%\.cargo\bin permanently
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:USERPROFILE\.cargo\bin", "User")
+```
+
+> If you installed Rust via `rustup`, the installer normally appends this line for you.
+> A fresh terminal (or `source`-ing your rc file) is required for the change to take effect.
+
+**Verify:**
+```bash
+clearedforpush --help     # should now print usage
+```
+
+Prefer not to touch your `PATH`? Install a prebuilt binary straight into a directory that's
+already on it (see [Installation](#-installation)) — e.g. `sudo mv clearedforpush /usr/local/bin/`.
+
+<br/>
+
+<div align="center">
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+</div>
+
 ## ▶ &nbsp;Usage
 
 ### Basic check
@@ -557,6 +610,12 @@ Absolutely. Use <code>--format json</code> for structured output with a stable s
 <summary><b>Is it fast enough for a git hook?</b></summary>
 <br/>
 Yes — designed to run in under 2 seconds for typical repos.
+</details>
+
+<details>
+<summary><b>I installed it but get <code>command not found</code> — why?</b></summary>
+<br/>
+<code>cargo install</code> puts the binary in <code>~/.cargo/bin</code>. If that directory isn't on your <code>PATH</code>, the shell can't find <code>clearedforpush</code> even though the install succeeded. See <a href="#-troubleshooting">Troubleshooting</a> for the one-line fix per shell.
 </details>
 
 <br/>
